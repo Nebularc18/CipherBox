@@ -223,6 +223,12 @@ textarea:focus-visible,
   color: var(--text-muted);
 }
 
+.encoding-note {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
 .panel-error textarea,
 .panel-error .text-input,
 .panel-error .number-input {

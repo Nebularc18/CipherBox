@@ -3,7 +3,7 @@ import './App.css'
 import { CopyButton } from './components/CopyButton'
 import { TextAreaPanel } from './components/TextAreaPanel'
 import { ToolCard } from './components/ToolCard'
-import { caesarCipher } from './utils/caesar'
+import { caesarCipher, rot13 } from './utils/caesar'
 import { hashSha256 } from './utils/hash'
 import {
   decodeBase64,
@@ -86,6 +86,14 @@ function App() {
     () => caesarCipher(caesarInput, caesarShift, caesarMode),
     [caesarInput, caesarMode, caesarShift],
   )
+
+  const caesarDisplayOutput = useMemo(() => {
+    if (!caesarInput) {
+      return ''
+    }
+
+    return caesarMode === 'encode' && caesarShift === 13 ? rot13(caesarInput) : caesarOutput
+  }, [caesarInput, caesarMode, caesarOutput, caesarShift])
 
   const vigenereOutput = useMemo(
     () => vigenereCipher(vigenereInput, vigenereKey, vigenereMode),
@@ -267,10 +275,11 @@ function App() {
             <TextAreaPanel
               id="caesar-output"
               label="Output"
-              value={caesarInput ? caesarOutput : ''}
+              value={caesarDisplayOutput}
               readOnly
               placeholder="Shifted text appears here."
-              actions={<CopyButton value={caesarOutput} disabled={!caesarInput} />}
+              helperText="ROT13 is Caesar with a shift of 13."
+              actions={<CopyButton value={caesarDisplayOutput} disabled={!caesarInput} />}
             />
           </div>
 
@@ -517,6 +526,7 @@ function EncodingPanel({
         isError={Boolean(state.error)}
         actions={<CopyButton value={state.output} disabled={!state.output} />}
       />
+      <p className="encoding-note">Decode accepts whitespace between groups.</p>
     </article>
   )
 }
