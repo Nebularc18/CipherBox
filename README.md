@@ -61,7 +61,8 @@ The Vite base path is configured automatically during GitHub Actions builds usin
 2. Open the repository on GitHub.
 3. Go to `Settings` -> `Pages`.
 4. Under `Build and deployment`, set `Source` to `GitHub Actions`.
-5. Push to `main` or run the workflow manually.
+5. If Pages has never been enabled for the repository, save the Pages settings once in the GitHub UI before running the workflow. The default workflow token may not have permission to create the Pages site automatically.
+6. Push to `main` or run the workflow manually.
 
 The app will then be published under a repository path like:
 
