@@ -223,7 +223,7 @@
 
 .dashboard {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 16px;
 }
 
@@ -463,6 +463,10 @@ input:focus {
   max-width: 360px;
   min-height: 42px;
   padding: 0 13px;
+}
+
+.wide-input {
+  max-width: 620px;
 }
 
 .stepper {
