@@ -1,4 +1,19 @@
 import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react'
+import {
+  Binary,
+  Braces,
+  GitBranch,
+  Hash,
+  Home,
+  KeyRound,
+  LockKeyhole,
+  LockKeyholeIcon,
+  ShieldCheck,
+  Shuffle,
+  SlidersHorizontal,
+  Sparkles,
+  TextCursorInput,
+} from 'lucide-react'
 import './App.css'
 import { CopyButton } from './components/CopyButton'
 import { TextAreaPanel } from './components/TextAreaPanel'
@@ -36,32 +51,46 @@ const toolCards = [
     title: 'Caesar Cipher',
     description: 'Shift letters forward or backward and test quick ROT13 transforms.',
     badge: 'Classical',
+    Icon: Binary,
   },
   {
     id: 'vigenere',
     title: 'Vigenere Cipher',
     description: 'Work with keyed substitution while preserving punctuation and spacing.',
     badge: 'Keyed',
+    Icon: KeyRound,
   },
   {
     id: 'hash',
     title: 'SHA-256 Hash',
     description: 'Generate a browser-side digest with the Web Crypto API.',
     badge: 'Integrity',
+    Icon: ShieldCheck,
   },
   {
     id: 'base',
     title: 'Base Tools',
     description: 'Convert between Base64, hex, and binary without leaving the page.',
     badge: 'Encoding',
+    Icon: Braces,
   },
   {
     id: 'cleanup',
     title: 'Text Cleanup',
     description: 'Normalize clues, reverse strings, and inspect character counts fast.',
     badge: 'Prep',
+    Icon: Sparkles,
   },
 ] as const
+
+const navigationItems = [
+  { href: '#top', label: 'Home', Icon: Home },
+  { href: '#caesar', label: 'Ciphers', Icon: Binary },
+  { href: '#base', label: 'Encoding', Icon: Shuffle },
+  { href: '#hash', label: 'Hashing', Icon: Hash },
+  { href: '#cleanup', label: 'Tools', Icon: SlidersHorizontal },
+  { href: '#cleanup', label: 'Text Utils', Icon: TextCursorInput },
+]
 
 const createBaseToolState = (): BaseToolState => ({
   input: '',
@@ -69,24 +98,7 @@ const createBaseToolState = (): BaseToolState => ({
   error: '',
 })
 
-type Theme = 'terminal' | 'cyberpunk' | 'elegance' | 'glass' | 'arcade' | 'default'
-
-const themes: { id: Theme; label: string }[] = [
-  { id: 'default', label: 'Default' },
-  { id: 'terminal', label: 'Terminal' },
-  { id: 'cyberpunk', label: 'Cyberpunk' },
-  { id: 'elegance', label: 'Elegance' },
-  { id: 'glass', label: 'Glassmorphism' },
-  { id: 'arcade', label: 'Retro Arcade' },
-]
-
 function App() {
-  const [theme, setTheme] = useState<Theme>('default')
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
-  }, [theme])
-
   const [caesarInput, setCaesarInput] = useState('')
   const [caesarShift, setCaesarShift] = useState(13)
   const [caesarMode, setCaesarMode] = useState<Mode>('encode')
@@ -233,47 +245,72 @@ function App() {
   }
 
   return (
-    <div className="app-shell">
-      <div className="theme-switcher">
-        {themes.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            className={`theme-btn ${theme === t.id ? 'active' : ''}`}
-            onClick={() => setTheme(t.id)}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
-      <header className="hero-panel">
-        <div className="hero-copy">
-          <p className="eyebrow">Puzzle Crypto Workbench</p>
-          <h1>CipherForge</h1>
-          <p className="hero-subtitle">
-            A browser toolbox for ciphers, hashes, and puzzle solving.
-          </p>
-        </div>
-        <div className="hero-chip-grid">
-          <span>Local-first</span>
-          <span>No backend</span>
-          <span>GitHub Pages ready</span>
-        </div>
-      </header>
+    <div className="app-frame" id="top">
+      <aside className="sidebar" aria-label="Primary navigation">
+        <a className="brand" href="#top">
+          <span className="brand-mark" aria-hidden="true">
+            <LockKeyhole size={23} strokeWidth={2.1} />
+          </span>
+          <span>
+            Cipher<span>Forge</span>
+          </span>
+        </a>
+        <p className="brand-subtitle">Puzzle Crypto Workbench</p>
 
-      <section className="dashboard" aria-label="Tool dashboard">
-        {toolCards.map((tool) => (
-          <ToolCard
-            key={tool.id}
-            href={`#${tool.id}`}
-            title={tool.title}
-            description={tool.description}
-            badge={tool.badge}
-          />
-        ))}
-      </section>
+        <nav className="side-nav">
+          {navigationItems.map(({ href, label, Icon }, index) => (
+            <a key={`${href}-${label}`} className={index === 0 ? 'active' : ''} href={href}>
+              <Icon size={18} strokeWidth={1.9} aria-hidden="true" />
+              <span>{label}</span>
+            </a>
+          ))}
+        </nav>
 
-      <main className="tool-stack">
+        <div className="sidebar-card" id="about">
+          <strong>Open Source</strong>
+          <p>Built for the puzzle solving community.</p>
+          <a href="https://github.com/Nebularc18/CipherBox" target="_blank" rel="noreferrer">
+            <GitBranch size={17} strokeWidth={1.9} aria-hidden="true" />
+            <span>View on GitHub</span>
+          </a>
+        </div>
+
+      </aside>
+
+      <main className="app-shell">
+        <header className="hero-panel">
+          <div className="hero-copy">
+            <p className="eyebrow">Puzzle Crypto Workbench</p>
+            <h1>
+              Cipher<span>Forge</span>
+            </h1>
+            <p className="hero-subtitle">
+              A browser toolbox for ciphers, hashes, and puzzle solving.
+            </p>
+          </div>
+          <div className="hero-visual" aria-hidden="true">
+            <div className="cipher-rain left">010011 110010 001101</div>
+            <div className="cipher-rain right">101001 001110 111001</div>
+            <div className="lock-orbit">
+              <LockKeyholeIcon size={150} strokeWidth={1.2} />
+            </div>
+          </div>
+        </header>
+
+        <section className="dashboard" aria-label="Tool dashboard">
+          {toolCards.map((tool) => (
+            <ToolCard
+              key={tool.id}
+              href={`#${tool.id}`}
+              title={tool.title}
+              description={tool.description}
+              badge={tool.badge}
+              Icon={tool.Icon}
+            />
+          ))}
+        </section>
+
+        <div className="tool-stack">
         <section id="caesar" className="tool-section">
           <div className="section-heading">
             <div>
@@ -329,19 +366,27 @@ function App() {
 
           <label className="field-group inline-field" htmlFor="caesar-shift">
             <span>Shift</span>
-            <input
-              id="caesar-shift"
-              className="number-input"
-              type="number"
-              min={0}
-              max={25}
-              value={caesarShift}
-              onChange={(event) =>
-                setCaesarShift(
-                  Math.min(25, Math.max(0, Number.parseInt(event.target.value || '0', 10))),
-                )
-              }
-            />
+            <div className="stepper">
+              <input
+                id="caesar-shift"
+                className="number-input"
+                type="number"
+                min={0}
+                max={25}
+                value={caesarShift}
+                onChange={(event) =>
+                  setCaesarShift(
+                    Math.min(25, Math.max(0, Number.parseInt(event.target.value || '0', 10))),
+                  )
+                }
+              />
+              <button type="button" onClick={() => setCaesarShift((value) => Math.max(0, value - 1))}>
+                -
+              </button>
+              <button type="button" onClick={() => setCaesarShift((value) => Math.min(25, value + 1))}>
+                +
+              </button>
+            </div>
           </label>
         </section>
 
@@ -542,6 +587,7 @@ function App() {
             />
           </div>
         </section>
+        </div>
       </main>
     </div>
   )

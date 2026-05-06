@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { X } from 'lucide-react'
 
 type TextAreaPanelProps = {
   id: string
@@ -29,8 +30,14 @@ export function TextAreaPanel({
         <label htmlFor={id}>{label}</label>
         <div className="panel-actions">
           {onChange ? (
-            <button type="button" className="ghost-button" onClick={() => onChange('')}>
-              Clear
+            <button
+              type="button"
+              className="ghost-button icon-text-button"
+              onClick={() => onChange('')}
+              aria-label={`Clear ${label.toLowerCase()}`}
+            >
+              <X size={16} strokeWidth={1.8} aria-hidden="true" />
+              <span>Clear</span>
             </button>
           ) : null}
           {actions}
