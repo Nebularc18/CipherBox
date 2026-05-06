@@ -1,31 +1,179 @@
+@import "@fontsource/fira-code";
+@import "@fontsource/playfair-display";
+@import "@fontsource/inter";
+@import "@fontsource/press-start-2p";
+@import "@fontsource/space-grotesk";
+
 :root {
-  font-family:
-    'Space Grotesk', 'Segoe UI', sans-serif;
+  /* Default/Base fallback */
+  --font-primary: 'Space Grotesk', sans-serif;
+  --font-mono: 'Space Grotesk', monospace;
+  --bg-body: #081116;
+  --bg-panel: #0d171d;
+  --border-color: rgba(110, 154, 146, 0.2);
+  --text-main: #f3fffb;
+  --text-muted: #9ec2b7;
+  --accent: #4ed6aa;
+  --accent-hover: #8df0d2;
+  --shadow: 0 20px 40px rgba(0, 0, 0, 0.28);
+  --radius: 8px;
+  --border-width: 1px;
+  --panel-blur: 0px;
+  --button-text: var(--bg-body);
+
+  font-family: var(--font-primary);
   line-height: 1.5;
   font-weight: 400;
-  color: #d9efe8;
-  background:
-    radial-gradient(circle at top, rgba(24, 50, 43, 0.65), transparent 28%),
-    linear-gradient(180deg, #081014 0%, #04080b 100%);
+  color: var(--text-main);
+  background: var(--bg-body);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  --page-max-width: 76rem;
-  --panel: #081116;
-  --surface: rgba(13, 23, 29, 0.95);
-  --border-soft: rgba(110, 154, 146, 0.2);
-  --border-strong: rgba(110, 154, 146, 0.3);
-  --accent: #4ed6aa;
-  --accent-soft: #8df0d2;
-  --text-bright: #f3fffb;
-  --text-muted: #9ec2b7;
-  --danger: #ff7680;
-  --panel-shadow:
-    0 20px 40px rgba(0, 0, 0, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
+/* =========================================
+   Theme 1: Terminal Brutalist
+   ========================================= */
+:root[data-theme="terminal"] {
+  --font-primary: 'Space Grotesk', monospace;
+  --font-mono: 'Space Grotesk', monospace;
+  --bg-body: #050505;
+  --bg-panel: #000000;
+  --border-color: #33ff00;
+  --text-main: #33ff00;
+  --text-muted: #1e9900;
+  --accent: #33ff00;
+  --accent-hover: #4cff19;
+  --shadow: 4px 4px 0 #33ff00;
+  --radius: 0px;
+  --border-width: 2px;
+  --panel-blur: 0px;
+  --button-text: #000;
+  text-transform: uppercase;
+}
+:root[data-theme="terminal"] body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(51, 255, 0, 0.05),
+    rgba(51, 255, 0, 0.05) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+  opacity: 0.8;
+  z-index: 9999;
+}
+
+/* =========================================
+   Theme 2: Cyberpunk Neon
+   ========================================= */
+:root[data-theme="cyberpunk"] {
+  --font-primary: 'Inter', sans-serif;
+  --font-mono: 'Fira Code', monospace;
+  --bg-body: #05051a;
+  --bg-panel: rgba(16, 16, 43, 0.9);
+  --border-color: #ff00ff;
+  --text-main: #ffffff;
+  --text-muted: #bbbbff;
+  --accent: #00ffff;
+  --accent-hover: #ff00ff;
+  --shadow: 0 0 10px #ff00ff, inset 0 0 5px #ff00ff;
+  --radius: 0px;
+  --border-width: 1px;
+  --panel-blur: 4px;
+  --button-text: #05051a;
+}
+:root[data-theme="cyberpunk"] body {
+  background:
+    radial-gradient(circle at 50% 0%, #300030 0%, transparent 50%),
+    #05051a;
+}
+
+/* =========================================
+   Theme 3: Minimalist Elegance
+   ========================================= */
+:root[data-theme="elegance"] {
+  --font-primary: 'Playfair Display', serif;
+  --font-mono: 'Inter', sans-serif;
+  --bg-body: #f9f6f0;
+  --bg-panel: #ffffff;
+  --border-color: #d1c9bd;
+  --text-main: #2c2c2a;
+  --text-muted: #787672;
+  --accent: #aa7c5c;
+  --accent-hover: #8c6246;
+  --shadow: 0 30px 60px rgba(0,0,0,0.06);
+  --radius: 2px;
+  --border-width: 1px;
+  --panel-blur: 0px;
+  --button-text: #fff;
+}
+
+/* =========================================
+   Theme 4: Glassmorphism
+   ========================================= */
+:root[data-theme="glass"] {
+  --font-primary: 'Inter', sans-serif;
+  --font-mono: 'Fira Code', monospace;
+  --bg-body: #1a0b2e; /* Fallback */
+  --bg-panel: rgba(255, 255, 255, 0.05);
+  --border-color: rgba(255, 255, 255, 0.15);
+  --text-main: #ffffff;
+  --text-muted: rgba(255, 255, 255, 0.6);
+  --accent: rgba(255, 255, 255, 0.2);
+  --accent-hover: rgba(255, 255, 255, 0.4);
+  --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  --radius: 24px;
+  --border-width: 1px;
+  --panel-blur: 16px;
+  --button-text: #fff;
+}
+:root[data-theme="glass"] body {
+  background: 
+    radial-gradient(circle at 10% 20%, #ff007b 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, #00d4ff 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, #7b00ff 0%, transparent 60%),
+    #1a0b2e;
+  background-attachment: fixed;
+}
+:root[data-theme="glass"] .app-shell {
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+}
+
+/* =========================================
+   Theme 5: Retro Arcade
+   ========================================= */
+:root[data-theme="arcade"] {
+  --font-primary: 'Press Start 2P', monospace;
+  --font-mono: 'Press Start 2P', monospace;
+  --bg-body: #0000aa;
+  --bg-panel: #0000aa;
+  --border-color: #ffffff;
+  --text-main: #ffff00;
+  --text-muted: #ffffff;
+  --accent: #ff0000;
+  --accent-hover: #ffaa00;
+  --shadow: 6px 6px 0 #000;
+  --radius: 0px;
+  --border-width: 4px;
+  --panel-blur: 0px;
+  --button-text: #fff;
+}
+:root[data-theme="arcade"] body {
+  background: #0000aa;
+}
+:root[data-theme="arcade"] h1,
+:root[data-theme="arcade"] h2,
+:root[data-theme="arcade"] h3 {
+  text-transform: uppercase;
+}
+
+
+/* Global Resets */
 * {
   box-sizing: border-box;
 }
@@ -38,95 +186,49 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background:
-    linear-gradient(90deg, rgba(78, 214, 170, 0.04) 1px, transparent 1px),
-    linear-gradient(rgba(78, 214, 170, 0.04) 1px, transparent 1px),
-    radial-gradient(circle at top, rgba(24, 50, 43, 0.52), transparent 30%),
-    #04080b;
-  background-size: 36px 36px, 36px 36px, auto, auto;
-}
-
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.02) 0%,
-    rgba(255, 255, 255, 0) 30%,
-    rgba(255, 255, 255, 0.02) 100%
-  );
-}
-
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background: repeating-linear-gradient(
-    180deg,
-    rgba(141, 240, 210, 0.015),
-    rgba(141, 240, 210, 0.015) 1px,
-    transparent 1px,
-    transparent 3px
-  );
-  opacity: 0.55;
+  transition: background 0.4s ease, color 0.4s ease;
 }
 
 #root {
-  width: min(100%, var(--page-max-width));
+  width: min(100%, 76rem);
   margin: 0 auto;
   padding: 1.5rem;
 }
 
 a {
   color: inherit;
+  text-decoration: none;
 }
 
-h1,
-h2,
-h3,
-p {
+h1, h2, h3, p {
   margin: 0;
 }
 
-h1,
-h2,
-h3,
-label,
-button {
-  font-family:
-    'IBM Plex Mono', 'Consolas', monospace;
+h1, h2, h3 {
+  font-family: var(--font-primary);
 }
 
 h1 {
   font-size: clamp(2.4rem, 6vw, 4.6rem);
-  line-height: 0.94;
-  letter-spacing: -0.04em;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
 h2 {
-  font-size: clamp(1.25rem, 2vw, 1.6rem);
+  font-size: clamp(1.25rem, 2vw, 1.8rem);
 }
 
 h3 {
   font-size: 1rem;
 }
 
-button,
-input,
-textarea {
+button, input, textarea {
   appearance: none;
+  font-family: var(--font-mono);
 }
 
 button {
   user-select: none;
-}
-
-textarea::placeholder,
-input::placeholder {
-  color: rgba(158, 194, 183, 0.55);
 }
 
 @media (max-width: 720px) {

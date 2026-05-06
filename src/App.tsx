@@ -69,7 +69,24 @@ const createBaseToolState = (): BaseToolState => ({
   error: '',
 })
 
+type Theme = 'terminal' | 'cyberpunk' | 'elegance' | 'glass' | 'arcade' | 'default'
+
+const themes: { id: Theme; label: string }[] = [
+  { id: 'default', label: 'Default' },
+  { id: 'terminal', label: 'Terminal' },
+  { id: 'cyberpunk', label: 'Cyberpunk' },
+  { id: 'elegance', label: 'Elegance' },
+  { id: 'glass', label: 'Glassmorphism' },
+  { id: 'arcade', label: 'Retro Arcade' },
+]
+
 function App() {
+  const [theme, setTheme] = useState<Theme>('default')
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+  }, [theme])
+
   const [caesarInput, setCaesarInput] = useState('')
   const [caesarShift, setCaesarShift] = useState(13)
   const [caesarMode, setCaesarMode] = useState<Mode>('encode')
@@ -217,6 +234,18 @@ function App() {
 
   return (
     <div className="app-shell">
+      <div className="theme-switcher">
+        {themes.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            className={`theme-btn ${theme === t.id ? 'active' : ''}`}
+            onClick={() => setTheme(t.id)}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
       <header className="hero-panel">
         <div className="hero-copy">
           <p className="eyebrow">Puzzle Crypto Workbench</p>
