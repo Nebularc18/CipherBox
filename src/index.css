@@ -1,31 +1,33 @@
+@import "@fontsource/space-grotesk";
+
 :root {
-  font-family:
-    'Space Grotesk', 'Segoe UI', sans-serif;
+  --font-primary: 'Space Grotesk', sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace;
+  --bg-body: #030a0f;
+  --bg-panel: #0a151c;
+  --border-color: rgba(126, 174, 172, 0.17);
+  --text-main: #f3fffb;
+  --text-muted: #9fb5b4;
+  --accent: #39d7ad;
+  --accent-hover: #7df1d0;
+  --shadow: 0 22px 54px rgba(0, 0, 0, 0.34);
+  --radius: 8px;
+  --border-width: 1px;
+  --panel-blur: 0px;
+  --button-text: var(--bg-body);
+
+  font-family: var(--font-primary);
   line-height: 1.5;
   font-weight: 400;
-  color: #d9efe8;
-  background:
-    radial-gradient(circle at top, rgba(24, 50, 43, 0.65), transparent 28%),
-    linear-gradient(180deg, #081014 0%, #04080b 100%);
+  color: var(--text-main);
+  background: var(--bg-body);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  --page-max-width: 76rem;
-  --panel: #081116;
-  --surface: rgba(13, 23, 29, 0.95);
-  --border-soft: rgba(110, 154, 146, 0.2);
-  --border-strong: rgba(110, 154, 146, 0.3);
-  --accent: #4ed6aa;
-  --accent-soft: #8df0d2;
-  --text-bright: #f3fffb;
-  --text-muted: #9ec2b7;
-  --danger: #ff7680;
-  --panel-shadow:
-    0 20px 40px rgba(0, 0, 0, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
+/* Global Resets */
 * {
   box-sizing: border-box;
 }
@@ -39,94 +41,49 @@ body {
   min-width: 320px;
   min-height: 100vh;
   background:
-    linear-gradient(90deg, rgba(78, 214, 170, 0.04) 1px, transparent 1px),
-    linear-gradient(rgba(78, 214, 170, 0.04) 1px, transparent 1px),
-    radial-gradient(circle at top, rgba(24, 50, 43, 0.52), transparent 30%),
-    #04080b;
-  background-size: 36px 36px, 36px 36px, auto, auto;
-}
-
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.02) 0%,
-    rgba(255, 255, 255, 0) 30%,
-    rgba(255, 255, 255, 0.02) 100%
-  );
-}
-
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background: repeating-linear-gradient(
-    180deg,
-    rgba(141, 240, 210, 0.015),
-    rgba(141, 240, 210, 0.015) 1px,
-    transparent 1px,
-    transparent 3px
-  );
-  opacity: 0.55;
+    radial-gradient(circle at 50% -10%, rgba(38, 159, 134, 0.1), transparent 34rem),
+    linear-gradient(180deg, #041016 0%, #02070b 100%);
 }
 
 #root {
-  width: min(100%, var(--page-max-width));
-  margin: 0 auto;
-  padding: 1.5rem;
+  width: 100%;
+  min-height: 100vh;
 }
 
 a {
   color: inherit;
+  text-decoration: none;
 }
 
-h1,
-h2,
-h3,
-p {
+h1, h2, h3, p {
   margin: 0;
 }
 
-h1,
-h2,
-h3,
-label,
-button {
-  font-family:
-    'IBM Plex Mono', 'Consolas', monospace;
+h1, h2, h3 {
+  font-family: var(--font-primary);
 }
 
 h1 {
   font-size: clamp(2.4rem, 6vw, 4.6rem);
-  line-height: 0.94;
-  letter-spacing: -0.04em;
+  line-height: 1.1;
+  letter-spacing: 0;
 }
 
 h2 {
-  font-size: clamp(1.25rem, 2vw, 1.6rem);
+  font-size: clamp(1.25rem, 2vw, 1.8rem);
 }
 
 h3 {
   font-size: 1rem;
 }
 
-button,
-input,
-textarea {
+button, input, textarea {
   appearance: none;
+  font-family: var(--font-mono);
 }
 
 button {
   user-select: none;
-}
-
-textarea::placeholder,
-input::placeholder {
-  color: rgba(158, 194, 183, 0.55);
 }
 
 @media (max-width: 720px) {
