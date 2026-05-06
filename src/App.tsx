@@ -13,7 +13,13 @@ import {
   encodeBinary,
   encodeHex,
 } from './utils/encodings'
-import { countLettersOnly, reverseText, stripSpaces } from './utils/text'
+import {
+  countAlphanumericOnly,
+  countLettersOnly,
+  reverseText,
+  stripNonAlphanumeric,
+  stripSpaces,
+} from './utils/text'
 import { vigenereCipher } from './utils/vigenere'
 
 type Mode = 'encode' | 'decode'
@@ -101,14 +107,23 @@ function App() {
   )
 
   const cleanupResults = useMemo(
-    () => ({
-      noSpaces: stripSpaces(cleanupInput),
-      uppercase: cleanupInput.toUpperCase(),
-      lowercase: cleanupInput.toLowerCase(),
-      reversed: reverseText(cleanupInput),
-      charCount: cleanupInput.length,
-      letterCount: countLettersOnly(cleanupInput),
-    }),
+    () => {
+      const alphanumericOnly = stripNonAlphanumeric(cleanupInput)
+
+      return {
+        noSpaces: stripSpaces(cleanupInput),
+        uppercase: cleanupInput.toUpperCase(),
+        lowercase: cleanupInput.toLowerCase(),
+        reversed: reverseText(cleanupInput),
+        alphanumericOnly,
+        uppercaseAlphanumeric: alphanumericOnly.toUpperCase(),
+        lowercaseAlphanumeric: alphanumericOnly.toLowerCase(),
+        reversedAlphanumeric: reverseText(alphanumericOnly),
+        charCount: cleanupInput.length,
+        letterCount: countLettersOnly(cleanupInput),
+        alphanumericCount: countAlphanumericOnly(cleanupInput),
+      }
+    },
     [cleanupInput],
   )
 
@@ -450,9 +465,19 @@ function App() {
               emptyLabel="No cleaned text yet."
             />
             <ResultCard
+              label="Letters + Numbers Only"
+              value={cleanupResults.alphanumericOnly}
+              emptyLabel="Alphanumeric-only text appears here."
+            />
+            <ResultCard
               label="Uppercase"
               value={cleanupResults.uppercase}
               emptyLabel="Uppercase output appears here."
+            />
+            <ResultCard
+              label="Uppercase Letters + Numbers"
+              value={cleanupResults.uppercaseAlphanumeric}
+              emptyLabel="Uppercase alphanumeric output appears here."
             />
             <ResultCard
               label="Lowercase"
@@ -460,9 +485,19 @@ function App() {
               emptyLabel="Lowercase output appears here."
             />
             <ResultCard
+              label="Lowercase Letters + Numbers"
+              value={cleanupResults.lowercaseAlphanumeric}
+              emptyLabel="Lowercase alphanumeric output appears here."
+            />
+            <ResultCard
               label="Reverse Text"
               value={cleanupResults.reversed}
               emptyLabel="Reversed text appears here."
+            />
+            <ResultCard
+              label="Reverse Letters + Numbers"
+              value={cleanupResults.reversedAlphanumeric}
+              emptyLabel="Reversed alphanumeric output appears here."
             />
             <MetricCard
               label="Character Count"
@@ -471,6 +506,10 @@ function App() {
             <MetricCard
               label="Letters Only"
               value={cleanupResults.letterCount.toString()}
+            />
+            <MetricCard
+              label="Letters + Numbers"
+              value={cleanupResults.alphanumericCount.toString()}
             />
           </div>
         </section>
