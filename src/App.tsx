@@ -33,6 +33,7 @@ import {
   stripNonAlphanumeric,
   stripSpaces,
 } from './utils/text'
+import { decryptKeyStream, encryptKeyStream } from './utils/keyStream'
 import { vigenereCipher } from './utils/vigenere'
 
 type Mode = 'encode' | 'decode'
@@ -57,6 +58,13 @@ const toolCards = [
     description: 'Work with keyed substitution while preserving punctuation and spacing.',
     badge: 'Keyed',
     Icon: KeyRound,
+  },
+  {
+    id: 'keystream',
+    title: 'Hex Key Stream',
+    description: 'Encrypt coordinates and other mixed text with a repeating hex byte key.',
+    badge: 'XOR',
+    Icon: LockKeyhole,
   },
   {
     id: 'hash',
@@ -104,6 +112,10 @@ function App() {
   const [vigenereKey, setVigenereKey] = useState('')
   const [vigenereMode, setVigenereMode] = useState<Mode>('encode')
 
+  const [keyStreamInput, setKeyStreamInput] = useState('')
+  const [keyStreamKey, setKeyStreamKey] = useState('')
+  const [keyStreamMode, setKeyStreamMode] = useState<Mode>('encode')
+
   const [hashInput, setHashInput] = useState('')
   const [hashOutput, setHashOutput] = useState('')
   const [hashError, setHashError] = useState('')
@@ -131,6 +143,28 @@ function App() {
     () => vigenereCipher(vigenereInput, vigenereKey, vigenereMode),
     [vigenereInput, vigenereKey, vigenereMode],
   )
+
+  const keyStreamResult = useMemo(() => {
+    if (!keyStreamInput || !keyStreamKey) {
+      return { output: '', error: '' }
+    }
+
+    try {
+      return {
+        output:
+          keyStreamMode === 'encode'
+            ? encryptKeyStream(keyStreamInput, keyStreamKey)
+            : decryptKeyStream(keyStreamInput, keyStreamKey),
+        error: '',
+      }
+    } catch (error) {
+      return {
+        output: '',
+        error:
+          error instanceof Error ? error.message : 'Cipher failed for this input.',
+      }
+    }
+  }, [keyStreamInput, keyStreamKey, keyStreamMode])
 
   const cleanupResults = useMemo(
     () => {
@@ -442,6 +476,76 @@ function App() {
                 <CopyButton
                   value={vigenereOutput}
                   disabled={!vigenereInput || !vigenereKey}
+                />
+              }
+            />
+          </div>
+        </section>
+
+        <section id="keystream" className="tool-section">
+          <div className="section-heading">
+            <div>
+              <p className="section-tag">Hex Key Cipher</p>
+              <h2>Hex Key Stream</h2>
+            </div>
+            <div className="control-strip">
+              <button
+                type="button"
+                className={`mode-button ${keyStreamMode === 'encode' ? 'active' : ''}`}
+                onClick={() => setKeyStreamMode('encode')}
+              >
+                Encrypt
+              </button>
+              <button
+                type="button"
+                className={`mode-button ${keyStreamMode === 'decode' ? 'active' : ''}`}
+                onClick={() => setKeyStreamMode('decode')}
+              >
+                Decrypt
+              </button>
+            </div>
+          </div>
+
+          <label className="field-group" htmlFor="keystream-key">
+            <span>Hex Key</span>
+            <input
+              id="keystream-key"
+              className="text-input wide-input"
+              type="text"
+              value={keyStreamKey}
+              onChange={(event) => setKeyStreamKey(event.target.value)}
+              placeholder="8dc5d661a303b6eaddcd08718814e3e9eb6be786"
+              spellCheck={false}
+            />
+          </label>
+
+          <div className="tool-grid two-column">
+            <TextAreaPanel
+              id="keystream-input"
+              label={keyStreamMode === 'encode' ? 'Plaintext' : 'Ciphertext Hex'}
+              value={keyStreamInput}
+              onChange={setKeyStreamInput}
+              placeholder={
+                keyStreamMode === 'encode'
+                  ? 'N5611248E01535589'
+                  : 'Paste encrypted hex here.'
+              }
+            />
+            <TextAreaPanel
+              id="keystream-output"
+              label={keyStreamMode === 'encode' ? 'Ciphertext Hex' : 'Plaintext'}
+              value={keyStreamResult.output}
+              readOnly
+              placeholder="Output appears once text and a hex key are provided."
+              helperText={
+                keyStreamResult.error ||
+                'Uses repeating-key XOR over UTF-8 bytes; encrypted output is hex.'
+              }
+              isError={Boolean(keyStreamResult.error)}
+              actions={
+                <CopyButton
+                  value={keyStreamResult.output}
+                  disabled={!keyStreamResult.output}
                 />
               }
             />

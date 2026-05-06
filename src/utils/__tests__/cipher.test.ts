@@ -8,6 +8,7 @@ import {
   encodeBinary,
   encodeHex,
 } from '../encodings'
+import { decryptKeyStream, encryptKeyStream } from '../keyStream'
 import { countLettersOnly, reverseText, stripSpaces } from '../text'
 import { vigenereCipher } from '../vigenere'
 
@@ -30,6 +31,24 @@ describe('vigenereCipher', () => {
 
   it('decodes back to plaintext', () => {
     expect(vigenereCipher('Lxfopv ef rnhr!', 'lemon', 'decode')).toBe('Attack at dawn!')
+  })
+})
+
+describe('key stream cipher', () => {
+  const coordinate = 'N5611248E01535589'
+  const key = '8dc5d661a303b6eaddcd08718814e3e9eb6be786'
+  const encrypted = 'c3f0e050923182d298fd3944bb21d6d1d2'
+
+  it('encrypts the requested coordinate with the requested key', () => {
+    expect(encryptKeyStream(coordinate, key)).toBe(encrypted)
+  })
+
+  it('decrypts back to the requested coordinate', () => {
+    expect(decryptKeyStream(encrypted, key)).toBe(coordinate)
+  })
+
+  it('rejects malformed hex keys', () => {
+    expect(() => encryptKeyStream(coordinate, 'abc')).toThrow('Key must use hex byte pairs.')
   })
 })
 
