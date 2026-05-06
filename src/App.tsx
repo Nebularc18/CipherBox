@@ -7,10 +7,8 @@ import {
   Home,
   KeyRound,
   LockKeyhole,
-  LockKeyholeIcon,
   ShieldCheck,
   Shuffle,
-  SlidersHorizontal,
   Sparkles,
   TextCursorInput,
 } from 'lucide-react'
@@ -88,7 +86,6 @@ const navigationItems = [
   { href: '#caesar', label: 'Ciphers', Icon: Binary },
   { href: '#base', label: 'Encoding', Icon: Shuffle },
   { href: '#hash', label: 'Hashing', Icon: Hash },
-  { href: '#cleanup', label: 'Tools', Icon: SlidersHorizontal },
   { href: '#cleanup', label: 'Text Utils', Icon: TextCursorInput },
 ]
 
@@ -292,7 +289,7 @@ function App() {
             <div className="cipher-rain left">010011 110010 001101</div>
             <div className="cipher-rain right">101001 001110 111001</div>
             <div className="lock-orbit">
-              <LockKeyholeIcon size={150} strokeWidth={1.2} />
+              <LockKeyhole size={150} strokeWidth={1.2} />
             </div>
           </div>
         </header>

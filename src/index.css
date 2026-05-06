@@ -2,7 +2,7 @@
 
 :root {
   --font-primary: 'Space Grotesk', sans-serif;
-  --font-mono: 'Space Grotesk', monospace;
+  --font-mono: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace;
   --bg-body: #030a0f;
   --bg-panel: #0a151c;
   --border-color: rgba(126, 174, 172, 0.17);

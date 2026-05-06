@@ -588,6 +588,27 @@ input:focus {
   opacity: 0.48;
 }
 
+.icon-text-button {
+  white-space: nowrap;
+}
+
+.icon-text-button svg {
+  flex: 0 0 auto;
+}
+
+.ghost-button:focus-visible,
+.mode-button:focus-visible,
+.action-button:focus-visible,
+.tool-card:focus-visible,
+.side-nav a:focus-visible,
+.sidebar-card a:focus-visible,
+.brand:focus-visible,
+.stepper button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px rgba(57, 215, 173, 0.16);
+}
+
 @media (max-width: 1120px) {
   .app-frame {
     grid-template-columns: 1fr;
