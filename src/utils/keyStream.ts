@@ -30,20 +30,22 @@ function xorWithRepeatingKey(bytes: Uint8Array, key: Uint8Array) {
 }
 
 export function encryptKeyStream(input: string, key: string) {
+  const keyBytes = hexToBytes(key, 'Key')
+
   if (!input) {
     return ''
   }
 
-  const keyBytes = hexToBytes(key, 'Key')
   return bytesToHex(xorWithRepeatingKey(encoder.encode(input), keyBytes))
 }
 
 export function decryptKeyStream(input: string, key: string) {
+  const keyBytes = hexToBytes(key, 'Key')
+
   if (!input) {
     return ''
   }
 
   const cipherBytes = hexToBytes(input, 'Ciphertext')
-  const keyBytes = hexToBytes(key, 'Key')
   return decoder.decode(xorWithRepeatingKey(cipherBytes, keyBytes))
 }

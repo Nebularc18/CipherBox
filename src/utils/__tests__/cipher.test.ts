@@ -47,8 +47,20 @@ describe('key stream cipher', () => {
     expect(decryptKeyStream(encrypted, key)).toBe(coordinate)
   })
 
-  it('rejects malformed hex keys', () => {
+  it('rejects malformed hex keys on encrypt', () => {
     expect(() => encryptKeyStream(coordinate, 'abc')).toThrow('Key must use hex byte pairs.')
+  })
+
+  it('rejects malformed hex keys on decrypt', () => {
+    expect(() => decryptKeyStream(encrypted, 'abc')).toThrow('Key must use hex byte pairs.')
+  })
+
+  it('validates the key before returning empty encrypt output', () => {
+    expect(() => encryptKeyStream('', 'notHex!')).toThrow('Key must use hex byte pairs.')
+  })
+
+  it('validates the key before returning empty decrypt output', () => {
+    expect(() => decryptKeyStream('', 'notHex!')).toThrow('Key must use hex byte pairs.')
   })
 })
 
