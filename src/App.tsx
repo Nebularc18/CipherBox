@@ -255,8 +255,8 @@ function App() {
         <p className="brand-subtitle">Puzzle Crypto Workbench</p>
 
         <nav className="side-nav">
-          {navigationItems.map(({ href, label, Icon }, index) => (
-            <a key={`${href}-${label}`} className={index === 0 ? 'active' : ''} href={href}>
+          {navigationItems.map(({ href, label, Icon }) => (
+            <a key={`${href}-${label}`} href={href}>
               <Icon size={18} strokeWidth={1.9} aria-hidden="true" />
               <span>{label}</span>
             </a>
