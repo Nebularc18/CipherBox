@@ -147,6 +147,13 @@ describe('geocaching ciphers', () => {
     expect(baconCipher(encoded, 'decode')).toBe('BCD Z')
   })
 
+  it('marks Bacon non-letter literals so they are not mistaken for groups', () => {
+    const encoded = 'AAAAB [5] [.]'
+
+    expect(baconCipher('B5.', 'encode')).toBe(encoded)
+    expect(baconCipher(encoded, 'decode')).toBe('B5.')
+  })
+
   it('encodes and decodes Polybius square values with I/J sharing a cell', () => {
     const encoded = '13 11 13 23 15 / 24 42'
 
@@ -170,6 +177,13 @@ describe('geocaching ciphers', () => {
 
     expect(natoCipher('CACHE NORTH', 'encode')).toBe(encoded)
     expect(natoCipher(encoded, 'decode')).toBe('CACHE NORTH')
+  })
+
+  it('encodes and decodes NATO digit words used in coordinates', () => {
+    const encoded = 'November Pantafive Niner'
+
+    expect(natoCipher('N59', 'encode')).toBe(encoded)
+    expect(natoCipher(encoded, 'decode')).toBe('N59')
   })
 
   it('calculates letter values for coordinate formulas', () => {

@@ -30,6 +30,16 @@ const NATO_BY_CHARACTER: Record<string, string> = {
   X: 'X-ray',
   Y: 'Yankee',
   Z: 'Zulu',
+  0: 'Nadazero',
+  1: 'Unaone',
+  2: 'Bissotwo',
+  3: 'Terrathree',
+  4: 'Kartefour',
+  5: 'Pantafive',
+  6: 'Soxisix',
+  7: 'Setteseven',
+  8: 'Oktoeight',
+  9: 'Niner',
 }
 
 const MORSE_BY_CHARACTER: Record<string, string> = {
@@ -192,7 +202,7 @@ export function baconCipher(input: string, mode: CipherMode) {
 
         const index = ALPHABET.indexOf(character)
         if (index === -1) {
-          return character
+          return `[${character}]`
         }
 
         return index
@@ -213,6 +223,11 @@ export function baconCipher(input: string, mode: CipherMode) {
       }
 
       if (!/^[ABab]{5}$/.test(token)) {
+        const literal = token.match(/^\[(.)\]$/)
+        if (literal) {
+          return literal[1]
+        }
+
         return token
       }
 
