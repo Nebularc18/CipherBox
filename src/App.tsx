@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react'
+import { useCallback, useEffect, useMemo, useState, useRef, type Dispatch, type SetStateAction } from 'react'
 import {
   Binary,
   Braces,
@@ -12,6 +12,7 @@ import {
   Shuffle,
   Sparkles,
   TextCursorInput,
+  X,
 } from 'lucide-react'
 import './App.css'
 import { CopyButton } from './components/CopyButton'
@@ -82,43 +83,43 @@ const toolCards = [
   {
     id: 'atbash',
     title: 'Atbash Cipher',
-    description: 'Mirror A-Z letters for quick geocache substitution clues.',
-    badge: 'Cache',
+    description: 'Mirror A-Z letters for quick substitution.',
+    badge: 'Substitution',
     Icon: Compass,
   },
   {
     id: 'a1z26',
     title: 'A1Z26 Cipher',
-    description: 'Convert letters to 1-26 numbers and decode numbered cache hints.',
-    badge: 'Cache',
+    description: 'Convert letters to 1-26 numbers and decode numbered sequences.',
+    badge: 'Substitution',
     Icon: Compass,
   },
   {
     id: 'morse',
     title: 'Morse Code',
-    description: 'Translate dot-dash clue text, including coordinate digits.',
-    badge: 'Cache',
+    description: 'Translate dot-dash text, including digits.',
+    badge: 'Signal',
     Icon: Compass,
   },
   {
     id: 'bacon',
     title: 'Bacon A/B Cipher',
-    description: 'Encode and decode five-symbol A/B groups used in puzzle caches.',
-    badge: 'Cache',
+    description: 'Encode and decode five-symbol A/B substitution groups.',
+    badge: 'Substitution',
     Icon: Compass,
   },
   {
     id: 'polybius',
     title: 'Polybius Square',
     description: 'Convert letters through a 5x5 I/J square into row-column pairs.',
-    badge: 'Cache',
+    badge: 'Fractionation',
     Icon: Compass,
   },
   {
     id: 'gronsfeld',
     title: 'Gronsfeld Cipher',
-    description: 'Use a numeric key as repeating Caesar shifts for cache text.',
-    badge: 'Cache',
+    description: 'Use a numeric key as repeating Caesar shifts for cipher text.',
+    badge: 'Keyed',
     Icon: KeyRound,
   },
   {
@@ -187,6 +188,10 @@ const createBaseToolState = (): BaseToolState => ({
 })
 
 function App() {
+  const dashboardRef = useRef<HTMLElement>(null)
+  const [gridColumns, setGridColumns] = useState(1)
+  const [currentView, setCurrentView] = useState('dashboard')
+  const [activeCategory, setActiveCategory] = useState('Home')
   const [caesarInput, setCaesarInput] = useState('')
   const [caesarShift, setCaesarShift] = useState(13)
   const [caesarMode, setCaesarMode] = useState<Mode>('encode')
@@ -228,6 +233,17 @@ function App() {
   const [binaryState, setBinaryState] = useState<BaseToolState>(createBaseToolState)
 
   const [cleanupInput, setCleanupInput] = useState('')
+
+  const filteredTools = useMemo(() => {
+    if (activeCategory === 'Home') return toolCards
+    return toolCards.filter((tool) => {
+      if (activeCategory === 'Ciphers') return ['Classical', 'Keyed', 'XOR', 'Substitution', 'Fractionation', 'Signal'].includes(tool.badge)
+      if (activeCategory === 'Hashing') return ['Integrity'].includes(tool.badge)
+      if (activeCategory === 'Encoding') return ['Encoding', 'Formula'].includes(tool.badge)
+      if (activeCategory === 'Text Utils') return ['Prep'].includes(tool.badge)
+      return true
+    })
+  }, [activeCategory])
 
   const caesarOutput = useMemo(
     () => caesarCipher(caesarInput, caesarShift, caesarMode),
@@ -334,6 +350,72 @@ function App() {
     setHashError('')
   }, [hashInput])
 
+  const getDashboardColumnCount = useCallback(() => {
+    if (dashboardRef.current) {
+      const style = window.getComputedStyle(dashboardRef.current)
+      const cols = style.gridTemplateColumns.split(' ').length
+      return cols || 1
+    }
+    return 1
+  }, [])
+
+  const updateGridColumns = useCallback(() => {
+    setGridColumns(getDashboardColumnCount())
+  }, [getDashboardColumnCount])
+
+  const toggleTool = useCallback((toolId: string) => {
+    const nextView = currentView === toolId ? 'dashboard' : toolId
+
+    setGridColumns(getDashboardColumnCount())
+    setCurrentView(nextView)
+
+    if (nextView !== 'dashboard') {
+      setTimeout(() => {
+        document.getElementById('expanded-tool-container')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }, 50)
+    }
+  }, [currentView, getDashboardColumnCount])
+
+  const closeTool = useCallback(() => {
+    setCurrentView('dashboard')
+  }, [])
+
+  useEffect(() => {
+    updateGridColumns()
+    window.addEventListener('resize', updateGridColumns)
+    
+    let observer: ResizeObserver | null = null
+    if (window.ResizeObserver && dashboardRef.current) {
+      observer = new ResizeObserver(updateGridColumns)
+      observer.observe(dashboardRef.current)
+    }
+
+    return () => {
+      window.removeEventListener('resize', updateGridColumns)
+      if (observer) observer.disconnect()
+    }
+  }, [updateGridColumns])
+
+  useEffect(() => {
+    updateGridColumns()
+  }, [activeCategory, updateGridColumns])
+
+  useEffect(() => {
+    if (currentView === 'dashboard') return
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closeTool()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [closeTool, currentView])
+
   const runHash = async () => {
     if (!hashInput) {
       setHashOutput('')
@@ -417,6 +499,809 @@ function App() {
     }
   }
 
+  const renderTool = (id: string) => {
+    switch (id) {
+      case 'caesar':
+        return (
+          <div className="inline-tool">
+            <div className="section-heading">
+              <div>
+                <p className="section-tag">Classical Cipher</p>
+                <h2>Caesar Cipher</h2>
+              </div>
+              <div className="control-strip">
+                <button
+                  type="button"
+                  className={`mode-button ${caesarMode === 'encode' ? 'active' : ''}`}
+                  onClick={() => setCaesarMode('encode')}
+                >
+                  Encode
+                </button>
+                <button
+                  type="button"
+                  className={`mode-button ${caesarMode === 'decode' ? 'active' : ''}`}
+                  onClick={() => setCaesarMode('decode')}
+                >
+                  Decode
+                </button>
+              </div>
+            </div>
+
+            <div className="tool-grid two-column">
+              <TextAreaPanel
+                id="caesar-input"
+                label="Input"
+                value={caesarInput}
+                onChange={setCaesarInput}
+                placeholder="Type ciphertext or plaintext here."
+              />
+              <TextAreaPanel
+                id="caesar-output"
+                label="Output"
+                value={caesarInput ? caesarOutput : ''}
+                readOnly
+                placeholder="Shifted text appears here."
+                actions={<CopyButton value={caesarOutput} disabled={!caesarInput} />}
+              />
+            </div>
+
+            <label className="field-group inline-field" htmlFor="caesar-shift">
+              <span>Shift</span>
+              <div className="stepper">
+                <input
+                  id="caesar-shift"
+                  className="number-input"
+                  type="number"
+                  min={0}
+                  max={25}
+                  value={caesarShift}
+                  onChange={(event) =>
+                    setCaesarShift(
+                      Math.min(25, Math.max(0, Number.parseInt(event.target.value || '0', 10))),
+                    )
+                  }
+                />
+                <button type="button" onClick={() => setCaesarShift((value) => Math.max(0, value - 1))}>
+                  -
+                </button>
+                <button type="button" onClick={() => setCaesarShift((value) => Math.min(25, value + 1))}>
+                  +
+                </button>
+              </div>
+            </label>
+          </div>
+        )
+      case 'vigenere':
+        return (
+          <div className="inline-tool">
+            <div className="section-heading">
+              <div>
+                <p className="section-tag">Keyed Cipher</p>
+                <h2>Vigenere Cipher</h2>
+              </div>
+              <div className="control-strip">
+                <button
+                  type="button"
+                  className={`mode-button ${vigenereMode === 'encode' ? 'active' : ''}`}
+                  onClick={() => setVigenereMode('encode')}
+                >
+                  Encode
+                </button>
+                <button
+                  type="button"
+                  className={`mode-button ${vigenereMode === 'decode' ? 'active' : ''}`}
+                  onClick={() => setVigenereMode('decode')}
+                >
+                  Decode
+                </button>
+              </div>
+            </div>
+
+            <label className="field-group" htmlFor="vigenere-key">
+              <span>Key</span>
+              <input
+                id="vigenere-key"
+                className="text-input"
+                type="text"
+                value={vigenereKey}
+                onChange={(event) => setVigenereKey(event.target.value)}
+                placeholder="Example: ORBIT"
+              />
+            </label>
+
+            <div className="tool-grid two-column">
+              <TextAreaPanel
+                id="vigenere-input"
+                label="Input"
+                value={vigenereInput}
+                onChange={setVigenereInput}
+                placeholder="Type text to transform."
+              />
+              <TextAreaPanel
+                id="vigenere-output"
+                label="Output"
+                value={vigenereInput && vigenereKey ? vigenereOutput : ''}
+                readOnly
+                placeholder="Output appears once a key is provided."
+                helperText={!vigenereKey ? 'Only letters in the key are used.' : undefined}
+                actions={
+                  <CopyButton
+                    value={vigenereOutput}
+                    disabled={!vigenereInput || !vigenereKey}
+                  />
+                }
+              />
+            </div>
+          </div>
+        )
+      case 'keystream':
+        return (
+          <div className="inline-tool">
+            <div className="section-heading">
+              <div>
+                <p className="section-tag">Hex Key Cipher</p>
+                <h2>Hex Key Stream</h2>
+              </div>
+              <div className="control-strip">
+                <button
+                  type="button"
+                  className={`mode-button ${keyStreamMode === 'encode' ? 'active' : ''}`}
+                  onClick={() => setKeyStreamMode('encode')}
+                >
+                  Encrypt
+                </button>
+                <button
+                  type="button"
+                  className={`mode-button ${keyStreamMode === 'decode' ? 'active' : ''}`}
+                  onClick={() => setKeyStreamMode('decode')}
+                >
+                  Decrypt
+                </button>
+              </div>
+            </div>
+
+            <label className="field-group" htmlFor="keystream-key">
+              <span>Hex Key</span>
+              <input
+                id="keystream-key"
+                className="text-input wide-input"
+                type="text"
+                value={keyStreamKey}
+                onChange={(event) => setKeyStreamKey(event.target.value)}
+                placeholder="00112233445566778899aabbccddeeff"
+                spellCheck={false}
+              />
+            </label>
+
+            <div className="tool-grid two-column">
+              <TextAreaPanel
+                id="keystream-input"
+                label={keyStreamMode === 'encode' ? 'Plaintext' : 'Ciphertext Hex'}
+                value={keyStreamInput}
+                onChange={setKeyStreamInput}
+                placeholder={
+                  keyStreamMode === 'encode'
+                    ? 'Type plaintext to encrypt.'
+                    : 'Paste encrypted hex here.'
+                }
+              />
+              <TextAreaPanel
+                id="keystream-output"
+                label={keyStreamMode === 'encode' ? 'Ciphertext Hex' : 'Plaintext'}
+                value={keyStreamResult.output}
+                readOnly
+                placeholder="Output appears once text and a hex key are provided."
+                helperText={
+                  keyStreamResult.error ||
+                  'Uses repeating-key XOR over UTF-8 bytes; encrypted output is hex.'
+                }
+                isError={Boolean(keyStreamResult.error)}
+                actions={
+                  <CopyButton
+                    value={keyStreamResult.output}
+                    disabled={!keyStreamResult.output}
+                  />
+                }
+              />
+            </div>
+          </div>
+        )
+      case 'atbash':
+        return (
+          <div className="inline-tool">
+            <div className="section-heading">
+              <div>
+                <p className="section-tag">Substitution Cipher</p>
+                <h2>Atbash Cipher</h2>
+              </div>
+            </div>
+
+            <div className="tool-grid two-column">
+              <TextAreaPanel
+                id="atbash-input"
+                label="Input"
+                value={atbashInput}
+                onChange={setAtbashInput}
+                placeholder="Paste Atbash text, such as Xofv: M59 V018."
+              />
+              <TextAreaPanel
+                id="atbash-output"
+                label="Output"
+                value={atbashInput ? atbashOutput : ''}
+                readOnly
+                placeholder="Mirrored text appears here."
+                helperText="Atbash is reciprocal, so decoding uses the same transform."
+                actions={<CopyButton value={atbashOutput} disabled={!atbashInput} />}
+              />
+            </div>
+          </div>
+        )
+      case 'a1z26':
+        return (
+          <div className="inline-tool">
+            <div className="section-heading">
+              <div>
+                <p className="section-tag">Substitution Cipher</p>
+                <h2>A1Z26 Cipher</h2>
+              </div>
+              <div className="control-strip">
+                <button
+                  type="button"
+                  className={`mode-button ${a1z26Mode === 'encode' ? 'active' : ''}`}
+                  onClick={() => setA1z26Mode('encode')}
+                >
+                  Encode
+                </button>
+                <button
+                  type="button"
+                  className={`mode-button ${a1z26Mode === 'decode' ? 'active' : ''}`}
+                  onClick={() => setA1z26Mode('decode')}
+                >
+                  Decode
+                </button>
+              </div>
+            </div>
+
+            <div className="tool-grid two-column">
+              <TextAreaPanel
+                id="a1z26-input"
+                label="Input"
+                value={a1z26Input}
+                onChange={setA1z26Input}
+                placeholder={a1z26Mode === 'encode' ? 'Type CIPHER TEXT.' : 'Paste 3 1 3 8 5 / 14 15 18 20 8.'}
+              />
+              <TextAreaPanel
+                id="a1z26-output"
+                label="Output"
+                value={a1z26Input ? a1z26Output : ''}
+                readOnly
+                placeholder="Converted text appears here."
+                helperText="A1Z26 decodes numbers 1-26; use / between words."
+                actions={<CopyButton value={a1z26Output} disabled={!a1z26Input} />}
+              />
+            </div>
+          </div>
+        )
+      case 'morse':
+        return (
+          <div className="inline-tool">
+            <div className="section-heading">
+              <div>
+                <p className="section-tag">Signal Code</p>
+                <h2>Morse Code</h2>
+              </div>
+              <div className="control-strip">
+                <button
+                  type="button"
+                  className={`mode-button ${morseMode === 'encode' ? 'active' : ''}`}
+                  onClick={() => setMorseMode('encode')}
+                >
+                  Encode
+                </button>
+                <button
+                  type="button"
+                  className={`mode-button ${morseMode === 'decode' ? 'active' : ''}`}
+                  onClick={() => setMorseMode('decode')}
+                >
+                  Decode
+                </button>
+              </div>
+            </div>
+
+            <div className="tool-grid two-column">
+              <TextAreaPanel
+                id="morse-input"
+                label="Input"
+                value={morseInput}
+                onChange={setMorseInput}
+                placeholder={morseMode === 'encode' ? 'Type N59 E18.' : 'Paste -. ..... ----. / . .---- ---..'}
+              />
+              <TextAreaPanel
+                id="morse-output"
+                label="Output"
+                value={morseInput ? morseOutput : ''}
+                readOnly
+                placeholder="Converted text appears here."
+                helperText="Morse decodes space-separated symbols; use / between words."
+                actions={<CopyButton value={morseOutput} disabled={!morseInput} />}
+              />
+            </div>
+          </div>
+        )
+      case 'bacon':
+        return (
+          <div className="inline-tool">
+            <div className="section-heading">
+              <div>
+                <p className="section-tag">Substitution Cipher</p>
+                <h2>Bacon A/B Cipher</h2>
+              </div>
+              <div className="control-strip">
+                <button
+                  type="button"
+                  className={`mode-button ${baconMode === 'encode' ? 'active' : ''}`}
+                  onClick={() => setBaconMode('encode')}
+                >
+                  Encode
+                </button>
+                <button
+                  type="button"
+                  className={`mode-button ${baconMode === 'decode' ? 'active' : ''}`}
+                  onClick={() => setBaconMode('decode')}
+                >
+                  Decode
+                </button>
+              </div>
+            </div>
+
+            <div className="tool-grid two-column">
+              <TextAreaPanel
+                id="bacon-input"
+                label="Input"
+                value={baconInput}
+                onChange={setBaconInput}
+                placeholder={baconMode === 'encode' ? 'Type CIPHER.' : 'Paste AAABA AAAAB AAABB ...'}
+              />
+              <TextAreaPanel
+                id="bacon-output"
+                label="Output"
+                value={baconInput ? baconOutput : ''}
+                readOnly
+                placeholder="Converted text appears here."
+                helperText="Bacon A/B decodes five-letter A/B groups; use / between words."
+                actions={<CopyButton value={baconOutput} disabled={!baconInput} />}
+              />
+            </div>
+          </div>
+        )
+      case 'polybius':
+        return (
+          <div className="inline-tool">
+            <div className="section-heading">
+              <div>
+                <p className="section-tag">Fractionation Cipher</p>
+                <h2>Polybius Square</h2>
+              </div>
+              <div className="control-strip">
+                <button
+                  type="button"
+                  className={`mode-button ${polybiusMode === 'encode' ? 'active' : ''}`}
+                  onClick={() => setPolybiusMode('encode')}
+                >
+                  Encode
+                </button>
+                <button
+                  type="button"
+                  className={`mode-button ${polybiusMode === 'decode' ? 'active' : ''}`}
+                  onClick={() => setPolybiusMode('decode')}
+                >
+                  Decode
+                </button>
+              </div>
+            </div>
+
+            <div className="tool-grid two-column">
+              <TextAreaPanel
+                id="polybius-input"
+                label="Input"
+                value={polybiusInput}
+                onChange={setPolybiusInput}
+                placeholder={
+                  polybiusMode === 'encode' ? 'Type CIPHER TEXT.' : 'Paste 13 11 13 23 15 / 33 34 42 44 23.'
+                }
+              />
+              <TextAreaPanel
+                id="polybius-output"
+                label="Output"
+                value={polybiusInput ? polybiusOutput : ''}
+                readOnly
+                placeholder="Converted text appears here."
+                helperText="Uses a 5x5 Polybius square with I/J sharing one cell."
+                actions={<CopyButton value={polybiusOutput} disabled={!polybiusInput} />}
+              />
+            </div>
+          </div>
+        )
+      case 'gronsfeld':
+        return (
+          <div className="inline-tool">
+            <div className="section-heading">
+              <div>
+                <p className="section-tag">Numeric Key Cipher</p>
+                <h2>Gronsfeld Cipher</h2>
+              </div>
+              <div className="control-strip">
+                <button
+                  type="button"
+                  className={`mode-button ${gronsfeldMode === 'encode' ? 'active' : ''}`}
+                  onClick={() => setGronsfeldMode('encode')}
+                >
+                  Encode
+                </button>
+                <button
+                  type="button"
+                  className={`mode-button ${gronsfeldMode === 'decode' ? 'active' : ''}`}
+                  onClick={() => setGronsfeldMode('decode')}
+                >
+                  Decode
+                </button>
+              </div>
+            </div>
+
+            <label className="field-group" htmlFor="gronsfeld-key">
+              <span>Numeric Key</span>
+              <input
+                id="gronsfeld-key"
+                className="text-input"
+                type="text"
+                value={gronsfeldKey}
+                onChange={(event) => setGronsfeldKey(event.target.value)}
+                placeholder="Example: 31415"
+                inputMode="numeric"
+              />
+            </label>
+
+            <div className="tool-grid two-column">
+              <TextAreaPanel
+                id="gronsfeld-input"
+                label="Input"
+                value={gronsfeldInput}
+                onChange={setGronsfeldInput}
+                placeholder="Type text to transform with a numeric key."
+              />
+              <TextAreaPanel
+                id="gronsfeld-output"
+                label="Output"
+                value={gronsfeldInput && gronsfeldKey ? gronsfeldOutput : ''}
+                readOnly
+                placeholder="Output appears once a key is provided."
+                helperText={!gronsfeldKey ? 'Only digits in the key are used.' : undefined}
+                actions={
+                  <CopyButton
+                    value={gronsfeldOutput}
+                    disabled={!gronsfeldInput || !gronsfeldKey}
+                  />
+                }
+              />
+            </div>
+          </div>
+        )
+      case 'nato':
+        return (
+          <div className="inline-tool">
+            <div className="section-heading">
+              <div>
+                <p className="section-tag">Signal Code</p>
+                <h2>NATO Alphabet</h2>
+              </div>
+              <div className="control-strip">
+                <button
+                  type="button"
+                  className={`mode-button ${natoMode === 'encode' ? 'active' : ''}`}
+                  onClick={() => setNatoMode('encode')}
+                >
+                  Encode
+                </button>
+                <button
+                  type="button"
+                  className={`mode-button ${natoMode === 'decode' ? 'active' : ''}`}
+                  onClick={() => setNatoMode('decode')}
+                >
+                  Decode
+                </button>
+              </div>
+            </div>
+
+            <div className="tool-grid two-column">
+              <TextAreaPanel
+                id="nato-input"
+                label="Input"
+                value={natoInput}
+                onChange={setNatoInput}
+                placeholder={natoMode === 'encode' ? 'Type CIPHER TEXT.' : 'Paste Charlie Alfa Charlie Hotel Echo / November Oscar Romeo Tango Hotel.'}
+              />
+              <TextAreaPanel
+                id="nato-output"
+                label="Output"
+                value={natoInput ? natoOutput : ''}
+                readOnly
+                placeholder="Converted text appears here."
+                helperText="NATO decoding accepts space-separated phonetic words; use / between words."
+                actions={<CopyButton value={natoOutput} disabled={!natoInput} />}
+              />
+            </div>
+          </div>
+        )
+      case 'letter-value':
+        return (
+          <div className="inline-tool">
+            <div className="section-heading">
+              <div>
+                <p className="section-tag">Coordinate Formula</p>
+                <h2>Letter Value</h2>
+              </div>
+            </div>
+
+            <div className="tool-grid two-column">
+              <TextAreaPanel
+                id="letter-value-input"
+                label="Input"
+                value={letterValueInput}
+                onChange={setLetterValueInput}
+                placeholder="Type CRYPTOGRAPHY or any formula word."
+              />
+              <TextAreaPanel
+                id="letter-value-output"
+                label="Output"
+                value={letterValueInput ? letterValueOutput : ''}
+                readOnly
+                placeholder="Letter values and total appear here."
+                helperText="Calculates A=1 through Z=26 and ignores non-letter characters."
+                actions={<CopyButton value={letterValueOutput} disabled={!letterValueInput} />}
+              />
+            </div>
+          </div>
+        )
+      case 'ascii-decimal':
+        return (
+          <div className="inline-tool">
+            <div className="section-heading">
+              <div>
+                <p className="section-tag">Encoding Utility</p>
+                <h2>ASCII Decimal</h2>
+              </div>
+              <div className="control-strip">
+                <button
+                  type="button"
+                  className={`mode-button ${asciiDecimalMode === 'encode' ? 'active' : ''}`}
+                  onClick={() => setAsciiDecimalMode('encode')}
+                >
+                  Encode
+                </button>
+                <button
+                  type="button"
+                  className={`mode-button ${asciiDecimalMode === 'decode' ? 'active' : ''}`}
+                  onClick={() => setAsciiDecimalMode('decode')}
+                >
+                  Decode
+                </button>
+              </div>
+            </div>
+
+            <div className="tool-grid two-column">
+              <TextAreaPanel
+                id="ascii-decimal-input"
+                label="Input"
+                value={asciiDecimalInput}
+                onChange={setAsciiDecimalInput}
+                placeholder={asciiDecimalMode === 'encode' ? 'Type CIPHER.' : 'Paste 67 65 67 72 69.'}
+              />
+              <TextAreaPanel
+                id="ascii-decimal-output"
+                label="Output"
+                value={asciiDecimalInput ? asciiDecimalOutput : ''}
+                readOnly
+                placeholder="Converted text appears here."
+                helperText="Decoding accepts space-separated ASCII values from 0 to 127."
+                actions={<CopyButton value={asciiDecimalOutput} disabled={!asciiDecimalInput} />}
+              />
+            </div>
+          </div>
+        )
+      case 'ternary':
+        return (
+          <div className="inline-tool">
+            <div className="section-heading">
+              <div>
+                <p className="section-tag">Encoding Utility</p>
+                <h2>Ternary Code</h2>
+              </div>
+              <div className="control-strip">
+                <button
+                  type="button"
+                  className={`mode-button ${ternaryMode === 'encode' ? 'active' : ''}`}
+                  onClick={() => setTernaryMode('encode')}
+                >
+                  Encode
+                </button>
+                <button
+                  type="button"
+                  className={`mode-button ${ternaryMode === 'decode' ? 'active' : ''}`}
+                  onClick={() => setTernaryMode('decode')}
+                >
+                  Decode
+                </button>
+              </div>
+            </div>
+
+            <div className="tool-grid two-column">
+              <TextAreaPanel
+                id="ternary-input"
+                label="Input"
+                value={ternaryInput}
+                onChange={setTernaryInput}
+                placeholder={ternaryMode === 'encode' ? 'Type CIPHER TEXT.' : 'Paste 010 001 010 022 012 / 112 120 200 202 022.'}
+              />
+              <TextAreaPanel
+                id="ternary-output"
+                label="Output"
+                value={ternaryInput ? ternaryOutput : ''}
+                readOnly
+                placeholder="Converted text appears here."
+                helperText="Uses A=001 through Z=222 in base 3; use / between words."
+                actions={<CopyButton value={ternaryOutput} disabled={!ternaryInput} />}
+              />
+            </div>
+          </div>
+        )
+      case 'hash':
+        return (
+          <div className="inline-tool">
+            <div className="section-heading">
+              <div>
+                <p className="section-tag">Digest</p>
+                <h2>SHA-256 Hash</h2>
+              </div>
+              <button type="button" className="action-button" onClick={runHash}>
+                Generate Hash
+              </button>
+            </div>
+
+            <div className="tool-grid two-column">
+              <TextAreaPanel
+                id="hash-input"
+                label="Input"
+                value={hashInput}
+                onChange={setHashInput}
+                placeholder="Enter the text to hash."
+              />
+              <TextAreaPanel
+                id="hash-output"
+                label="Output"
+                value={hashOutput}
+                readOnly
+                placeholder="SHA-256 output appears here."
+                helperText={hashError || 'Uses the browser Web Crypto API.'}
+                isError={Boolean(hashError)}
+                actions={<CopyButton value={hashOutput} disabled={!hashOutput} />}
+              />
+            </div>
+          </div>
+        )
+      case 'base':
+        return (
+          <div className="inline-tool">
+            <div className="section-heading">
+              <div>
+                <p className="section-tag">Encoding Utilities</p>
+                <h2>Base Tools</h2>
+              </div>
+            </div>
+
+            <div className="tool-grid three-column">
+              <EncodingPanel
+                title="Base64"
+                state={base64State}
+                onInputChange={(value) => updateBaseState(setBase64State, value)}
+                onEncode={() => runBaseAction('base64', 'encode')}
+                onDecode={() => runBaseAction('base64', 'decode')}
+              />
+              <EncodingPanel
+                title="Hex"
+                state={hexState}
+                onInputChange={(value) => updateBaseState(setHexState, value)}
+                onEncode={() => runBaseAction('hex', 'encode')}
+                onDecode={() => runBaseAction('hex', 'decode')}
+              />
+              <EncodingPanel
+                title="Binary"
+                state={binaryState}
+                onInputChange={(value) => updateBaseState(setBinaryState, value)}
+                onEncode={() => runBaseAction('binary', 'encode')}
+                onDecode={() => runBaseAction('binary', 'decode')}
+              />
+            </div>
+          </div>
+        )
+      case 'cleanup':
+        return (
+          <div className="inline-tool">
+            <div className="section-heading">
+              <div>
+                <p className="section-tag">Text Prep</p>
+                <h2>Text Cleanup</h2>
+              </div>
+            </div>
+
+            <TextAreaPanel
+              id="cleanup-input"
+              label="Input"
+              value={cleanupInput}
+              onChange={setCleanupInput}
+              placeholder="Paste a clue, coordinate string, or suspect ciphertext."
+            />
+
+            <div className="cleanup-grid">
+              <ResultCard
+                label="Remove Spaces"
+                value={cleanupResults.noSpaces}
+                emptyLabel="No cleaned text yet."
+              />
+              <ResultCard
+                label="Letters + Numbers Only"
+                value={cleanupResults.alphanumericOnly}
+                emptyLabel="Alphanumeric-only text appears here."
+              />
+              <ResultCard
+                label="Uppercase"
+                value={cleanupResults.uppercase}
+                emptyLabel="Uppercase output appears here."
+              />
+              <ResultCard
+                label="Uppercase Letters + Numbers"
+                value={cleanupResults.uppercaseAlphanumeric}
+                emptyLabel="Uppercase alphanumeric output appears here."
+              />
+              <ResultCard
+                label="Lowercase"
+                value={cleanupResults.lowercase}
+                emptyLabel="Lowercase output appears here."
+              />
+              <ResultCard
+                label="Lowercase Letters + Numbers"
+                value={cleanupResults.lowercaseAlphanumeric}
+                emptyLabel="Lowercase alphanumeric output appears here."
+              />
+              <ResultCard
+                label="Reverse Text"
+                value={cleanupResults.reversed}
+                emptyLabel="Reversed text appears here."
+              />
+              <ResultCard
+                label="Reverse Letters + Numbers"
+                value={cleanupResults.reversedAlphanumeric}
+                emptyLabel="Reversed alphanumeric output appears here."
+              />
+              <MetricCard
+                label="Character Count"
+                value={cleanupResults.charCount.toString()}
+              />
+              <MetricCard
+                label="Letters Only"
+                value={cleanupResults.letterCount.toString()}
+              />
+              <MetricCard
+                label="Letters + Numbers"
+                value={cleanupResults.alphanumericCount.toString()}
+              />
+            </div>
+          </div>
+        )
+      default:
+        return null
+    }
+  }
+
   return (
     <div className="app-frame" id="top">
       <aside className="sidebar" aria-label="Primary navigation">
@@ -432,10 +1317,20 @@ function App() {
 
         <nav className="side-nav">
           {navigationItems.map(({ href, label, Icon }) => (
-            <a key={`${href}-${label}`} href={href}>
+            <button
+              key={`${href}-${label}`}
+              type="button"
+              className={`side-nav-button ${currentView === 'dashboard' && activeCategory === label ? 'active' : ''}`}
+              onClick={(e) => {
+                e.preventDefault();
+                setCurrentView('dashboard');
+                setActiveCategory(label);
+                window.scrollTo(0,0);
+              }}
+            >
               <Icon size={18} strokeWidth={1.9} aria-hidden="true" />
               <span>{label}</span>
-            </a>
+            </button>
           ))}
         </nav>
 
@@ -451,803 +1346,57 @@ function App() {
       </aside>
 
       <main className="app-shell">
-        <header className="hero-panel">
+          <div className="dashboard-view">
+            <header className="hero-panel">
           <div className="hero-copy">
             <p className="eyebrow">Puzzle Crypto Workbench</p>
             <h1>
               Cipher<span>Forge</span>
             </h1>
-            <p className="hero-subtitle">
-              A browser toolbox for ciphers, hashes, and puzzle solving.
-            </p>
-          </div>
-          <div className="hero-visual" aria-hidden="true">
-            <div className="cipher-rain left">010011 110010 001101</div>
-            <div className="cipher-rain right">101001 001110 111001</div>
-            <div className="lock-orbit">
-              <LockKeyhole size={150} strokeWidth={1.2} />
-            </div>
-          </div>
+          <p className="hero-subtitle">
+            A browser toolbox for ciphers, hashes, and puzzle solving.
+          </p>
+        </div>
         </header>
 
-        <section className="dashboard" aria-label="Tool dashboard">
-          {toolCards.map((tool) => (
-            <ToolCard
-              key={tool.id}
-              href={`#${tool.id}`}
-              title={tool.title}
-              description={tool.description}
-              badge={tool.badge}
-              Icon={tool.Icon}
-            />
-          ))}
-        </section>
-
-        <div className="tool-stack">
-        <section id="caesar" className="tool-section">
-          <div className="section-heading">
-            <div>
-              <p className="section-tag">Classical Cipher</p>
-              <h2>Caesar Cipher</h2>
-            </div>
-            <div className="control-strip">
-              <button
-                type="button"
-                className={`mode-button ${caesarMode === 'encode' ? 'active' : ''}`}
-                onClick={() => setCaesarMode('encode')}
+        <div className="dashboard-container">
+          <section ref={dashboardRef} className="dashboard" aria-label="Tool dashboard">
+            {filteredTools.map((tool, index) => (
+              <div 
+                key={tool.id} 
+                className={`tool-card-wrapper ${currentView === tool.id ? 'active-card' : ''}`}
+                style={{ order: index * 10 }}
               >
-                Encode
-              </button>
-              <button
-                type="button"
-                className={`mode-button ${caesarMode === 'decode' ? 'active' : ''}`}
-                onClick={() => setCaesarMode('decode')}
-              >
-                Decode
-              </button>
-            </div>
-          </div>
-
-          <div className="tool-grid two-column">
-            <TextAreaPanel
-              id="caesar-input"
-              label="Input"
-              value={caesarInput}
-              onChange={setCaesarInput}
-              placeholder="Type ciphertext or plaintext here."
-            />
-            <TextAreaPanel
-              id="caesar-output"
-              label="Output"
-              value={caesarInput ? caesarOutput : ''}
-              readOnly
-              placeholder="Shifted text appears here."
-              actions={<CopyButton value={caesarOutput} disabled={!caesarInput} />}
-            />
-          </div>
-
-          <label className="field-group inline-field" htmlFor="caesar-shift">
-            <span>Shift</span>
-            <div className="stepper">
-              <input
-                id="caesar-shift"
-                className="number-input"
-                type="number"
-                min={0}
-                max={25}
-                value={caesarShift}
-                onChange={(event) =>
-                  setCaesarShift(
-                    Math.min(25, Math.max(0, Number.parseInt(event.target.value || '0', 10))),
-                  )
-                }
-              />
-              <button type="button" onClick={() => setCaesarShift((value) => Math.max(0, value - 1))}>
-                -
-              </button>
-              <button type="button" onClick={() => setCaesarShift((value) => Math.min(25, value + 1))}>
-                +
-              </button>
-            </div>
-          </label>
-        </section>
-
-        <section id="vigenere" className="tool-section">
-          <div className="section-heading">
-            <div>
-              <p className="section-tag">Keyed Cipher</p>
-              <h2>Vigenere Cipher</h2>
-            </div>
-            <div className="control-strip">
-              <button
-                type="button"
-                className={`mode-button ${vigenereMode === 'encode' ? 'active' : ''}`}
-                onClick={() => setVigenereMode('encode')}
-              >
-                Encode
-              </button>
-              <button
-                type="button"
-                className={`mode-button ${vigenereMode === 'decode' ? 'active' : ''}`}
-                onClick={() => setVigenereMode('decode')}
-              >
-                Decode
-              </button>
-            </div>
-          </div>
-
-          <label className="field-group" htmlFor="vigenere-key">
-            <span>Key</span>
-            <input
-              id="vigenere-key"
-              className="text-input"
-              type="text"
-              value={vigenereKey}
-              onChange={(event) => setVigenereKey(event.target.value)}
-              placeholder="Example: ORBIT"
-            />
-          </label>
-
-          <div className="tool-grid two-column">
-            <TextAreaPanel
-              id="vigenere-input"
-              label="Input"
-              value={vigenereInput}
-              onChange={setVigenereInput}
-              placeholder="Type text to transform."
-            />
-            <TextAreaPanel
-              id="vigenere-output"
-              label="Output"
-              value={vigenereInput && vigenereKey ? vigenereOutput : ''}
-              readOnly
-              placeholder="Output appears once a key is provided."
-              helperText={!vigenereKey ? 'Only letters in the key are used.' : undefined}
-              actions={
-                <CopyButton
-                  value={vigenereOutput}
-                  disabled={!vigenereInput || !vigenereKey}
+                <ToolCard
+                  onClick={() => toggleTool(tool.id)}
+                  title={tool.title}
+                  description={tool.description}
+                  badge={tool.badge}
+                  Icon={tool.Icon}
                 />
-              }
-            />
-          </div>
-        </section>
-
-        <section id="keystream" className="tool-section">
-          <div className="section-heading">
-            <div>
-              <p className="section-tag">Hex Key Cipher</p>
-              <h2>Hex Key Stream</h2>
-            </div>
-            <div className="control-strip">
-              <button
-                type="button"
-                className={`mode-button ${keyStreamMode === 'encode' ? 'active' : ''}`}
-                onClick={() => setKeyStreamMode('encode')}
+              </div>
+            ))}
+            
+            {currentView !== 'dashboard' && (
+              <div 
+                id="expanded-tool-container" 
+                className="inline-tool-container active"
+                style={{
+                  order: Math.floor(filteredTools.findIndex(t => t.id === currentView) / gridColumns) * gridColumns * 10 + (gridColumns * 10) - 5,
+                }}
               >
-                Encrypt
-              </button>
-              <button
-                type="button"
-                className={`mode-button ${keyStreamMode === 'decode' ? 'active' : ''}`}
-                onClick={() => setKeyStreamMode('decode')}
-              >
-                Decrypt
-              </button>
-            </div>
-          </div>
-
-          <label className="field-group" htmlFor="keystream-key">
-            <span>Hex Key</span>
-            <input
-              id="keystream-key"
-              className="text-input wide-input"
-              type="text"
-              value={keyStreamKey}
-              onChange={(event) => setKeyStreamKey(event.target.value)}
-              placeholder="00112233445566778899aabbccddeeff"
-              spellCheck={false}
-            />
-          </label>
-
-          <div className="tool-grid two-column">
-            <TextAreaPanel
-              id="keystream-input"
-              label={keyStreamMode === 'encode' ? 'Plaintext' : 'Ciphertext Hex'}
-              value={keyStreamInput}
-              onChange={setKeyStreamInput}
-              placeholder={
-                keyStreamMode === 'encode'
-                  ? 'Type plaintext to encrypt.'
-                  : 'Paste encrypted hex here.'
-              }
-            />
-            <TextAreaPanel
-              id="keystream-output"
-              label={keyStreamMode === 'encode' ? 'Ciphertext Hex' : 'Plaintext'}
-              value={keyStreamResult.output}
-              readOnly
-              placeholder="Output appears once text and a hex key are provided."
-              helperText={
-                keyStreamResult.error ||
-                'Uses repeating-key XOR over UTF-8 bytes; encrypted output is hex.'
-              }
-              isError={Boolean(keyStreamResult.error)}
-              actions={
-                <CopyButton
-                  value={keyStreamResult.output}
-                  disabled={!keyStreamResult.output}
-                />
-              }
-            />
-          </div>
-        </section>
-
-        <section id="atbash" className="tool-section">
-          <div className="section-heading">
-            <div>
-              <p className="section-tag">Geocaching Clue</p>
-              <h2>Atbash Cipher</h2>
-            </div>
-          </div>
-
-          <div className="tool-grid two-column">
-            <TextAreaPanel
-              id="atbash-input"
-              label="Input"
-              value={atbashInput}
-              onChange={setAtbashInput}
-              placeholder="Paste Atbash text, such as Xofv: M59 V018."
-            />
-            <TextAreaPanel
-              id="atbash-output"
-              label="Output"
-              value={atbashInput ? atbashOutput : ''}
-              readOnly
-              placeholder="Mirrored text appears here."
-              helperText="Atbash is reciprocal, so decoding uses the same transform."
-              actions={<CopyButton value={atbashOutput} disabled={!atbashInput} />}
-            />
-          </div>
-        </section>
-
-        <section id="a1z26" className="tool-section">
-          <div className="section-heading">
-            <div>
-              <p className="section-tag">Geocaching Clue</p>
-              <h2>A1Z26 Cipher</h2>
-            </div>
-            <div className="control-strip">
-              <button
-                type="button"
-                className={`mode-button ${a1z26Mode === 'encode' ? 'active' : ''}`}
-                onClick={() => setA1z26Mode('encode')}
-              >
-                Encode
-              </button>
-              <button
-                type="button"
-                className={`mode-button ${a1z26Mode === 'decode' ? 'active' : ''}`}
-                onClick={() => setA1z26Mode('decode')}
-              >
-                Decode
-              </button>
-            </div>
-          </div>
-
-          <div className="tool-grid two-column">
-            <TextAreaPanel
-              id="a1z26-input"
-              label="Input"
-              value={a1z26Input}
-              onChange={setA1z26Input}
-              placeholder={a1z26Mode === 'encode' ? 'Type CACHE NORTH.' : 'Paste 3 1 3 8 5 / 14 15 18 20 8.'}
-            />
-            <TextAreaPanel
-              id="a1z26-output"
-              label="Output"
-              value={a1z26Input ? a1z26Output : ''}
-              readOnly
-              placeholder="Converted text appears here."
-              helperText="A1Z26 decodes numbers 1-26; use / between words."
-              actions={<CopyButton value={a1z26Output} disabled={!a1z26Input} />}
-            />
-          </div>
-        </section>
-
-        <section id="morse" className="tool-section">
-          <div className="section-heading">
-            <div>
-              <p className="section-tag">Geocaching Clue</p>
-              <h2>Morse Code</h2>
-            </div>
-            <div className="control-strip">
-              <button
-                type="button"
-                className={`mode-button ${morseMode === 'encode' ? 'active' : ''}`}
-                onClick={() => setMorseMode('encode')}
-              >
-                Encode
-              </button>
-              <button
-                type="button"
-                className={`mode-button ${morseMode === 'decode' ? 'active' : ''}`}
-                onClick={() => setMorseMode('decode')}
-              >
-                Decode
-              </button>
-            </div>
-          </div>
-
-          <div className="tool-grid two-column">
-            <TextAreaPanel
-              id="morse-input"
-              label="Input"
-              value={morseInput}
-              onChange={setMorseInput}
-              placeholder={morseMode === 'encode' ? 'Type N59 E18.' : 'Paste -. ..... ----. / . .---- ---..'}
-            />
-            <TextAreaPanel
-              id="morse-output"
-              label="Output"
-              value={morseInput ? morseOutput : ''}
-              readOnly
-              placeholder="Converted text appears here."
-              helperText="Morse decodes space-separated symbols; use / between words."
-              actions={<CopyButton value={morseOutput} disabled={!morseInput} />}
-            />
-          </div>
-        </section>
-
-        <section id="bacon" className="tool-section">
-          <div className="section-heading">
-            <div>
-              <p className="section-tag">Geocaching Clue</p>
-              <h2>Bacon A/B Cipher</h2>
-            </div>
-            <div className="control-strip">
-              <button
-                type="button"
-                className={`mode-button ${baconMode === 'encode' ? 'active' : ''}`}
-                onClick={() => setBaconMode('encode')}
-              >
-                Encode
-              </button>
-              <button
-                type="button"
-                className={`mode-button ${baconMode === 'decode' ? 'active' : ''}`}
-                onClick={() => setBaconMode('decode')}
-              >
-                Decode
-              </button>
-            </div>
-          </div>
-
-          <div className="tool-grid two-column">
-            <TextAreaPanel
-              id="bacon-input"
-              label="Input"
-              value={baconInput}
-              onChange={setBaconInput}
-              placeholder={baconMode === 'encode' ? 'Type CACHE.' : 'Paste AAABA AAAAB AAABB ...'}
-            />
-            <TextAreaPanel
-              id="bacon-output"
-              label="Output"
-              value={baconInput ? baconOutput : ''}
-              readOnly
-              placeholder="Converted text appears here."
-              helperText="Bacon A/B decodes five-letter A/B groups; use / between words."
-              actions={<CopyButton value={baconOutput} disabled={!baconInput} />}
-            />
-          </div>
-        </section>
-
-        <section id="polybius" className="tool-section">
-          <div className="section-heading">
-            <div>
-              <p className="section-tag">Geocaching Clue</p>
-              <h2>Polybius Square</h2>
-            </div>
-            <div className="control-strip">
-              <button
-                type="button"
-                className={`mode-button ${polybiusMode === 'encode' ? 'active' : ''}`}
-                onClick={() => setPolybiusMode('encode')}
-              >
-                Encode
-              </button>
-              <button
-                type="button"
-                className={`mode-button ${polybiusMode === 'decode' ? 'active' : ''}`}
-                onClick={() => setPolybiusMode('decode')}
-              >
-                Decode
-              </button>
-            </div>
-          </div>
-
-          <div className="tool-grid two-column">
-            <TextAreaPanel
-              id="polybius-input"
-              label="Input"
-              value={polybiusInput}
-              onChange={setPolybiusInput}
-              placeholder={
-                polybiusMode === 'encode' ? 'Type CACHE NORTH.' : 'Paste 13 11 13 23 15 / 33 34 42 44 23.'
-              }
-            />
-            <TextAreaPanel
-              id="polybius-output"
-              label="Output"
-              value={polybiusInput ? polybiusOutput : ''}
-              readOnly
-              placeholder="Converted text appears here."
-              helperText="Uses a 5x5 Polybius square with I/J sharing one cell."
-              actions={<CopyButton value={polybiusOutput} disabled={!polybiusInput} />}
-            />
-          </div>
-        </section>
-
-        <section id="gronsfeld" className="tool-section">
-          <div className="section-heading">
-            <div>
-              <p className="section-tag">Numeric Key Cipher</p>
-              <h2>Gronsfeld Cipher</h2>
-            </div>
-            <div className="control-strip">
-              <button
-                type="button"
-                className={`mode-button ${gronsfeldMode === 'encode' ? 'active' : ''}`}
-                onClick={() => setGronsfeldMode('encode')}
-              >
-                Encode
-              </button>
-              <button
-                type="button"
-                className={`mode-button ${gronsfeldMode === 'decode' ? 'active' : ''}`}
-                onClick={() => setGronsfeldMode('decode')}
-              >
-                Decode
-              </button>
-            </div>
-          </div>
-
-          <label className="field-group" htmlFor="gronsfeld-key">
-            <span>Numeric Key</span>
-            <input
-              id="gronsfeld-key"
-              className="text-input"
-              type="text"
-              value={gronsfeldKey}
-              onChange={(event) => setGronsfeldKey(event.target.value)}
-              placeholder="Example: 31415"
-              inputMode="numeric"
-            />
-          </label>
-
-          <div className="tool-grid two-column">
-            <TextAreaPanel
-              id="gronsfeld-input"
-              label="Input"
-              value={gronsfeldInput}
-              onChange={setGronsfeldInput}
-              placeholder="Type text to transform with a numeric key."
-            />
-            <TextAreaPanel
-              id="gronsfeld-output"
-              label="Output"
-              value={gronsfeldInput && gronsfeldKey ? gronsfeldOutput : ''}
-              readOnly
-              placeholder="Output appears once a key is provided."
-              helperText={!gronsfeldKey ? 'Only digits in the key are used.' : undefined}
-              actions={
-                <CopyButton
-                  value={gronsfeldOutput}
-                  disabled={!gronsfeldInput || !gronsfeldKey}
-                />
-              }
-            />
-          </div>
-        </section>
-
-        <section id="nato" className="tool-section">
-          <div className="section-heading">
-            <div>
-              <p className="section-tag">Signal Code</p>
-              <h2>NATO Alphabet</h2>
-            </div>
-            <div className="control-strip">
-              <button
-                type="button"
-                className={`mode-button ${natoMode === 'encode' ? 'active' : ''}`}
-                onClick={() => setNatoMode('encode')}
-              >
-                Encode
-              </button>
-              <button
-                type="button"
-                className={`mode-button ${natoMode === 'decode' ? 'active' : ''}`}
-                onClick={() => setNatoMode('decode')}
-              >
-                Decode
-              </button>
-            </div>
-          </div>
-
-          <div className="tool-grid two-column">
-            <TextAreaPanel
-              id="nato-input"
-              label="Input"
-              value={natoInput}
-              onChange={setNatoInput}
-              placeholder={natoMode === 'encode' ? 'Type CACHE NORTH.' : 'Paste Charlie Alfa Charlie Hotel Echo / November Oscar Romeo Tango Hotel.'}
-            />
-            <TextAreaPanel
-              id="nato-output"
-              label="Output"
-              value={natoInput ? natoOutput : ''}
-              readOnly
-              placeholder="Converted text appears here."
-              helperText="NATO decoding accepts space-separated phonetic words; use / between words."
-              actions={<CopyButton value={natoOutput} disabled={!natoInput} />}
-            />
-          </div>
-        </section>
-
-        <section id="letter-value" className="tool-section">
-          <div className="section-heading">
-            <div>
-              <p className="section-tag">Coordinate Formula</p>
-              <h2>Letter Value</h2>
-            </div>
-          </div>
-
-          <div className="tool-grid two-column">
-            <TextAreaPanel
-              id="letter-value-input"
-              label="Input"
-              value={letterValueInput}
-              onChange={setLetterValueInput}
-              placeholder="Type GEOCACHING or any formula word."
-            />
-            <TextAreaPanel
-              id="letter-value-output"
-              label="Output"
-              value={letterValueInput ? letterValueOutput : ''}
-              readOnly
-              placeholder="Letter values and total appear here."
-              helperText="Calculates A=1 through Z=26 and ignores non-letter characters."
-              actions={<CopyButton value={letterValueOutput} disabled={!letterValueInput} />}
-            />
-          </div>
-        </section>
-
-        <section id="ascii-decimal" className="tool-section">
-          <div className="section-heading">
-            <div>
-              <p className="section-tag">Encoding Utility</p>
-              <h2>ASCII Decimal</h2>
-            </div>
-            <div className="control-strip">
-              <button
-                type="button"
-                className={`mode-button ${asciiDecimalMode === 'encode' ? 'active' : ''}`}
-                onClick={() => setAsciiDecimalMode('encode')}
-              >
-                Encode
-              </button>
-              <button
-                type="button"
-                className={`mode-button ${asciiDecimalMode === 'decode' ? 'active' : ''}`}
-                onClick={() => setAsciiDecimalMode('decode')}
-              >
-                Decode
-              </button>
-            </div>
-          </div>
-
-          <div className="tool-grid two-column">
-            <TextAreaPanel
-              id="ascii-decimal-input"
-              label="Input"
-              value={asciiDecimalInput}
-              onChange={setAsciiDecimalInput}
-              placeholder={asciiDecimalMode === 'encode' ? 'Type CACHE.' : 'Paste 67 65 67 72 69.'}
-            />
-            <TextAreaPanel
-              id="ascii-decimal-output"
-              label="Output"
-              value={asciiDecimalInput ? asciiDecimalOutput : ''}
-              readOnly
-              placeholder="Converted text appears here."
-              helperText="Decoding accepts space-separated ASCII values from 0 to 127."
-              actions={<CopyButton value={asciiDecimalOutput} disabled={!asciiDecimalInput} />}
-            />
-          </div>
-        </section>
-
-        <section id="ternary" className="tool-section">
-          <div className="section-heading">
-            <div>
-              <p className="section-tag">Encoding Utility</p>
-              <h2>Ternary Code</h2>
-            </div>
-            <div className="control-strip">
-              <button
-                type="button"
-                className={`mode-button ${ternaryMode === 'encode' ? 'active' : ''}`}
-                onClick={() => setTernaryMode('encode')}
-              >
-                Encode
-              </button>
-              <button
-                type="button"
-                className={`mode-button ${ternaryMode === 'decode' ? 'active' : ''}`}
-                onClick={() => setTernaryMode('decode')}
-              >
-                Decode
-              </button>
-            </div>
-          </div>
-
-          <div className="tool-grid two-column">
-            <TextAreaPanel
-              id="ternary-input"
-              label="Input"
-              value={ternaryInput}
-              onChange={setTernaryInput}
-              placeholder={ternaryMode === 'encode' ? 'Type CACHE NORTH.' : 'Paste 010 001 010 022 012 / 112 120 200 202 022.'}
-            />
-            <TextAreaPanel
-              id="ternary-output"
-              label="Output"
-              value={ternaryInput ? ternaryOutput : ''}
-              readOnly
-              placeholder="Converted text appears here."
-              helperText="Uses A=001 through Z=222 in base 3; use / between words."
-              actions={<CopyButton value={ternaryOutput} disabled={!ternaryInput} />}
-            />
-          </div>
-        </section>
-
-        <section id="hash" className="tool-section">
-          <div className="section-heading">
-            <div>
-              <p className="section-tag">Digest</p>
-              <h2>SHA-256 Hash</h2>
-            </div>
-            <button type="button" className="action-button" onClick={runHash}>
-              Generate Hash
-            </button>
-          </div>
-
-          <div className="tool-grid two-column">
-            <TextAreaPanel
-              id="hash-input"
-              label="Input"
-              value={hashInput}
-              onChange={setHashInput}
-              placeholder="Enter the text to hash."
-            />
-            <TextAreaPanel
-              id="hash-output"
-              label="Output"
-              value={hashOutput}
-              readOnly
-              placeholder="SHA-256 output appears here."
-              helperText={hashError || 'Uses the browser Web Crypto API.'}
-              isError={Boolean(hashError)}
-              actions={<CopyButton value={hashOutput} disabled={!hashOutput} />}
-            />
-          </div>
-        </section>
-
-        <section id="base" className="tool-section">
-          <div className="section-heading">
-            <div>
-              <p className="section-tag">Encoding Utilities</p>
-              <h2>Base Tools</h2>
-            </div>
-          </div>
-
-          <div className="tool-grid three-column">
-            <EncodingPanel
-              title="Base64"
-              state={base64State}
-              onInputChange={(value) => updateBaseState(setBase64State, value)}
-              onEncode={() => runBaseAction('base64', 'encode')}
-              onDecode={() => runBaseAction('base64', 'decode')}
-            />
-            <EncodingPanel
-              title="Hex"
-              state={hexState}
-              onInputChange={(value) => updateBaseState(setHexState, value)}
-              onEncode={() => runBaseAction('hex', 'encode')}
-              onDecode={() => runBaseAction('hex', 'decode')}
-            />
-            <EncodingPanel
-              title="Binary"
-              state={binaryState}
-              onInputChange={(value) => updateBaseState(setBinaryState, value)}
-              onEncode={() => runBaseAction('binary', 'encode')}
-              onDecode={() => runBaseAction('binary', 'decode')}
-            />
-          </div>
-        </section>
-
-        <section id="cleanup" className="tool-section">
-          <div className="section-heading">
-            <div>
-              <p className="section-tag">Text Prep</p>
-              <h2>Text Cleanup</h2>
-            </div>
-          </div>
-
-          <TextAreaPanel
-            id="cleanup-input"
-            label="Input"
-            value={cleanupInput}
-            onChange={setCleanupInput}
-            placeholder="Paste a clue, coordinate string, or suspect ciphertext."
-          />
-
-          <div className="cleanup-grid">
-            <ResultCard
-              label="Remove Spaces"
-              value={cleanupResults.noSpaces}
-              emptyLabel="No cleaned text yet."
-            />
-            <ResultCard
-              label="Letters + Numbers Only"
-              value={cleanupResults.alphanumericOnly}
-              emptyLabel="Alphanumeric-only text appears here."
-            />
-            <ResultCard
-              label="Uppercase"
-              value={cleanupResults.uppercase}
-              emptyLabel="Uppercase output appears here."
-            />
-            <ResultCard
-              label="Uppercase Letters + Numbers"
-              value={cleanupResults.uppercaseAlphanumeric}
-              emptyLabel="Uppercase alphanumeric output appears here."
-            />
-            <ResultCard
-              label="Lowercase"
-              value={cleanupResults.lowercase}
-              emptyLabel="Lowercase output appears here."
-            />
-            <ResultCard
-              label="Lowercase Letters + Numbers"
-              value={cleanupResults.lowercaseAlphanumeric}
-              emptyLabel="Lowercase alphanumeric output appears here."
-            />
-            <ResultCard
-              label="Reverse Text"
-              value={cleanupResults.reversed}
-              emptyLabel="Reversed text appears here."
-            />
-            <ResultCard
-              label="Reverse Letters + Numbers"
-              value={cleanupResults.reversedAlphanumeric}
-              emptyLabel="Reversed alphanumeric output appears here."
-            />
-            <MetricCard
-              label="Character Count"
-              value={cleanupResults.charCount.toString()}
-            />
-            <MetricCard
-              label="Letters Only"
-              value={cleanupResults.letterCount.toString()}
-            />
-            <MetricCard
-              label="Letters + Numbers"
-              value={cleanupResults.alphanumericCount.toString()}
-            />
-          </div>
-        </section>
+                <div className="inline-tool-actions">
+                  <button className="ghost-button inline-tool-close" type="button" onClick={closeTool} aria-label="Close tool panel">
+                    <X size={18} strokeWidth={2} aria-hidden="true" />
+                  </button>
+                </div>
+                {renderTool(currentView)}
+              </div>
+            )}
+          </section>
         </div>
+        </div>
+
       </main>
     </div>
   )
