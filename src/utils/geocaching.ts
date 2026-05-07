@@ -132,7 +132,6 @@ export function a1z26Cipher(input: string, mode: CipherMode) {
         return index === -1 ? character : String(index + 1)
       })
       .join(' ')
-      .replace(/\s+([.,!?;:])/g, '$1')
   }
 
   return input

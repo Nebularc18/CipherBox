@@ -126,6 +126,13 @@ describe('geocaching ciphers', () => {
     expect(a1z26Cipher(encoded, 'decode')).toBe('CACHE NORTH')
   })
 
+  it('keeps A1Z26 punctuation decodable as standalone tokens', () => {
+    const encoded = '3 1 3 8 5 .'
+
+    expect(a1z26Cipher('CACHE.', 'encode')).toBe(encoded)
+    expect(a1z26Cipher(encoded, 'decode')).toBe('CACHE.')
+  })
+
   it('encodes and decodes Morse code with digits used in coordinates', () => {
     const encoded = '-. ..... ----. / . .---- ---..'
 
