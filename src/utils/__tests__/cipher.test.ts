@@ -169,11 +169,22 @@ describe('geocaching ciphers', () => {
     expect(letterValue('GEOCACHING')).toBe('7 + 5 + 15 + 3 + 1 + 3 + 8 + 9 + 14 + 7 = 72')
   })
 
+  it('keeps letter value output format consistent when there are no letters', () => {
+    expect(letterValue('123 !?')).toBe('0 = 0')
+  })
+
   it('encodes and decodes ASCII decimal values', () => {
     const encoded = '67 65 67 72 69'
 
     expect(asciiDecimalCipher('CACHE', 'encode')).toBe(encoded)
     expect(asciiDecimalCipher(encoded, 'decode')).toBe('CACHE')
+  })
+
+  it('replaces non-ASCII characters during ASCII decimal encode', () => {
+    const encoded = '67 63 63'
+
+    expect(asciiDecimalCipher('Cé€', 'encode')).toBe(encoded)
+    expect(asciiDecimalCipher(encoded, 'decode')).toBe('C??')
   })
 
   it('encodes and decodes ternary letter codes', () => {

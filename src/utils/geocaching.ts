@@ -335,7 +335,7 @@ export function letterValue(input: string) {
   const total = values.reduce((sum, value) => sum + value, 0)
 
   if (values.length === 0) {
-    return 'Total: 0'
+    return '0 = 0'
   }
 
   return `${values.join(' + ')} = ${total}`
@@ -345,7 +345,10 @@ export function asciiDecimalCipher(input: string, mode: CipherMode) {
   if (mode === 'encode') {
     return input
       .split('')
-      .map((character) => character.charCodeAt(0).toString())
+      .map((character) => {
+        const codePoint = character.charCodeAt(0)
+        return (codePoint <= 127 ? codePoint : 63).toString()
+      })
       .join(' ')
   }
 
@@ -355,7 +358,7 @@ export function asciiDecimalCipher(input: string, mode: CipherMode) {
     .map((token) => {
       const codePoint = Number.parseInt(token, 10)
 
-      if (!/^\d+$/.test(token) || codePoint < 0 || codePoint > 127) {
+      if (!/^\d+$/.test(token) || codePoint > 127) {
         return token
       }
 
