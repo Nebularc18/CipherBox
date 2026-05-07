@@ -16,7 +16,7 @@ import './App.css'
 import { CopyButton } from './components/CopyButton'
 import { TextAreaPanel } from './components/TextAreaPanel'
 import { ToolCard } from './components/ToolCard'
-import { caesarCipher, rot13 } from './utils/caesar'
+import { caesarCipher } from './utils/caesar'
 import { hashSha256 } from './utils/hash'
 import {
   decodeBase64,
@@ -92,8 +92,8 @@ const toolCards = [
 const navigationItems = [
   { href: '#top', label: 'Home', Icon: Home },
   { href: '#caesar', label: 'Ciphers', Icon: Binary },
-  { href: '#base', label: 'Encoding', Icon: Shuffle },
   { href: '#hash', label: 'Hashing', Icon: Hash },
+  { href: '#base', label: 'Encoding', Icon: Shuffle },
   { href: '#cleanup', label: 'Text Utils', Icon: TextCursorInput },
 ]
 
@@ -130,14 +130,6 @@ function App() {
     () => caesarCipher(caesarInput, caesarShift, caesarMode),
     [caesarInput, caesarMode, caesarShift],
   )
-
-  const caesarDisplayOutput = useMemo(() => {
-    if (!caesarInput) {
-      return ''
-    }
-
-    return caesarMode === 'encode' && caesarShift === 13 ? rot13(caesarInput) : caesarOutput
-  }, [caesarInput, caesarMode, caesarOutput, caesarShift])
 
   const vigenereOutput = useMemo(
     () => vigenereCipher(vigenereInput, vigenereKey, vigenereMode),
@@ -363,16 +355,6 @@ function App() {
               >
                 Decode
               </button>
-              <button
-                type="button"
-                className="mode-button"
-                onClick={() => {
-                  setCaesarShift(13)
-                  setCaesarMode('encode')
-                }}
-              >
-                ROT13
-              </button>
             </div>
           </div>
 
@@ -387,11 +369,10 @@ function App() {
             <TextAreaPanel
               id="caesar-output"
               label="Output"
-              value={caesarDisplayOutput}
+              value={caesarInput ? caesarOutput : ''}
               readOnly
               placeholder="Shifted text appears here."
-              helperText="ROT13 is Caesar with a shift of 13."
-              actions={<CopyButton value={caesarDisplayOutput} disabled={!caesarInput} />}
+              actions={<CopyButton value={caesarOutput} disabled={!caesarInput} />}
             />
           </div>
 
@@ -514,7 +495,7 @@ function App() {
               type="text"
               value={keyStreamKey}
               onChange={(event) => setKeyStreamKey(event.target.value)}
-              placeholder="8dc5d661a303b6eaddcd08718814e3e9eb6be786"
+              placeholder="00112233445566778899aabbccddeeff"
               spellCheck={false}
             />
           </label>
@@ -527,7 +508,7 @@ function App() {
               onChange={setKeyStreamInput}
               placeholder={
                 keyStreamMode === 'encode'
-                  ? 'N5611248E01535589'
+                  ? 'Type plaintext to encrypt.'
                   : 'Paste encrypted hex here.'
               }
             />
