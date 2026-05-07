@@ -17,6 +17,7 @@ import {
   letterValue,
   morseCipher,
   natoCipher,
+  numberModuloCipher,
   polybiusCipher,
   ternaryCipher,
 } from '../geocaching'
@@ -205,11 +206,41 @@ describe('geocaching ciphers', () => {
     expect(asciiDecimalCipher(encoded, 'decode')).toBe('CACHE')
   })
 
-  it('replaces non-ASCII characters during ASCII decimal encode', () => {
-    const encoded = '67 63 63'
+  it('encodes and decodes extended ASCII byte values up to 255', () => {
+    const extendedCharacter = String.fromCharCode(255)
+
+    expect(asciiDecimalCipher(extendedCharacter, 'encode')).toBe('255')
+    expect(asciiDecimalCipher('255', 'decode')).toBe(extendedCharacter)
+  })
+
+  it('encodes ASCII decimal input as reversible modulo pairs', () => {
+    expect(numberModuloCipher('67 65 67 72 69', 7, 'encode')).toBe('9:4 9:2 9:4 10:2 9:6')
+    expect(numberModuloCipher('9:4 9:2 9:4 10:2 9:6', 7, 'decode')).toBe('67 65 67 72 69')
+  })
+
+  it('encodes and decodes modulo values without an ASCII byte limit', () => {
+    const encoded = '28:7 50:1 0:1 61:13'
+
+    expect(numberModuloCipher('511 901 1 1111', 18, 'encode')).toBe(encoded)
+    expect(numberModuloCipher(encoded, 18, 'decode')).toBe('511 901 1 1111')
+  })
+
+  it('round-trips negative modulo numbers', () => {
+    expect(numberModuloCipher('-5', 18, 'encode')).toBe('-1:13')
+    expect(numberModuloCipher('-1:13', 18, 'decode')).toBe('-5')
+  })
+
+  it('rejects non-reversible modulo decode input', () => {
+    expect(() => numberModuloCipher('2 0 2', 5, 'decode')).toThrow(
+      'Decode input must use quotient:remainder groups.',
+    )
+  })
+
+  it('replaces characters above byte range during ASCII decimal encode', () => {
+    const encoded = '67 233 63'
 
     expect(asciiDecimalCipher('Cé€', 'encode')).toBe(encoded)
-    expect(asciiDecimalCipher(encoded, 'decode')).toBe('C??')
+    expect(asciiDecimalCipher(encoded, 'decode')).toBe('Cé?')
   })
 
   it('encodes and decodes ternary letter codes', () => {

@@ -29,6 +29,7 @@ import {
   letterValue,
   morseCipher,
   natoCipher,
+  numberModuloCipher,
   polybiusCipher,
   ternaryCipher,
 } from './utils/geocaching'
@@ -144,6 +145,13 @@ const toolCards = [
     Icon: Braces,
   },
   {
+    id: 'ascii-modulo',
+    title: 'Number Modulo',
+    description: 'Turn decimal numbers into reversible quotient and remainder pairs.',
+    badge: 'Formula',
+    Icon: Binary,
+  },
+  {
     id: 'ternary',
     title: 'Ternary Code',
     description: 'Convert letters to three-digit base-3 values used in puzzle sheets.',
@@ -221,6 +229,9 @@ function App() {
   const [letterValueInput, setLetterValueInput] = useState('')
   const [asciiDecimalInput, setAsciiDecimalInput] = useState('')
   const [asciiDecimalMode, setAsciiDecimalMode] = useState<Mode>('encode')
+  const [asciiModuloInput, setAsciiModuloInput] = useState('')
+  const [asciiModuloMode, setAsciiModuloMode] = useState<Mode>('encode')
+  const [asciiModuloValue, setAsciiModuloValue] = useState(5)
   const [ternaryInput, setTernaryInput] = useState('')
   const [ternaryMode, setTernaryMode] = useState<Mode>('encode')
 
@@ -318,6 +329,24 @@ function App() {
     () => asciiDecimalCipher(asciiDecimalInput, asciiDecimalMode),
     [asciiDecimalInput, asciiDecimalMode],
   )
+
+  const asciiModuloResult = useMemo(() => {
+    if (!asciiModuloInput) {
+      return { output: '', error: '' }
+    }
+
+    try {
+      return {
+        output: numberModuloCipher(asciiModuloInput, asciiModuloValue, asciiModuloMode),
+        error: '',
+      }
+    } catch (error) {
+      return {
+        output: '',
+        error: error instanceof Error ? error.message : 'Modulo conversion failed.',
+      }
+    }
+  }, [asciiModuloInput, asciiModuloMode, asciiModuloValue])
 
   const ternaryOutput = useMemo(
     () => ternaryCipher(ternaryInput, ternaryMode),
@@ -552,19 +581,15 @@ function App() {
                   id="caesar-shift"
                   className="number-input"
                   type="number"
-                  min={0}
-                  max={25}
                   value={caesarShift}
                   onChange={(event) =>
-                    setCaesarShift(
-                      Math.min(25, Math.max(0, Number.parseInt(event.target.value || '0', 10))),
-                    )
+                    setCaesarShift(Number.parseInt(event.target.value || '0', 10))
                   }
                 />
-                <button type="button" onClick={() => setCaesarShift((value) => Math.max(0, value - 1))}>
+                <button type="button" onClick={() => setCaesarShift((value) => value - 1)}>
                   -
                 </button>
-                <button type="button" onClick={() => setCaesarShift((value) => Math.min(25, value + 1))}>
+                <button type="button" onClick={() => setCaesarShift((value) => value + 1)}>
                   +
                 </button>
               </div>
@@ -1102,8 +1127,85 @@ function App() {
                 value={asciiDecimalInput ? asciiDecimalOutput : ''}
                 readOnly
                 placeholder="Converted text appears here."
-                helperText="Decoding accepts space-separated ASCII values from 0 to 127."
+                helperText="Decoding accepts space-separated ASCII values from 0 to 255."
                 actions={<CopyButton value={asciiDecimalOutput} disabled={!asciiDecimalInput} />}
+              />
+            </div>
+          </div>
+        )
+      case 'ascii-modulo':
+        return (
+          <div className="inline-tool">
+            <div className="section-heading">
+              <div>
+                <p className="section-tag">Number Utility</p>
+                <h2>Number Modulo</h2>
+              </div>
+              <div className="control-strip">
+                <button
+                  type="button"
+                  className={`mode-button ${asciiModuloMode === 'encode' ? 'active' : ''}`}
+                  onClick={() => setAsciiModuloMode('encode')}
+                >
+                  Encode
+                </button>
+                <button
+                  type="button"
+                  className={`mode-button ${asciiModuloMode === 'decode' ? 'active' : ''}`}
+                  onClick={() => setAsciiModuloMode('decode')}
+                >
+                  Decode
+                </button>
+              </div>
+            </div>
+
+            <label className="field-group inline-field" htmlFor="ascii-modulo-value">
+              <span>Modulo</span>
+              <div className="stepper">
+                <input
+                  id="ascii-modulo-value"
+                  className="number-input"
+                  type="number"
+                  min={2}
+                  value={asciiModuloValue}
+                  onChange={(event) => {
+                    const value = Number.parseInt(event.target.value, 10)
+                    setAsciiModuloValue(Number.isFinite(value) ? value : 2)
+                  }}
+                />
+                <button type="button" onClick={() => setAsciiModuloValue((value) => Math.max(2, value - 1))}>
+                  -
+                </button>
+                <button type="button" onClick={() => setAsciiModuloValue((value) => value + 1)}>
+                  +
+                </button>
+              </div>
+            </label>
+
+            <div className="tool-grid two-column">
+              <TextAreaPanel
+                id="ascii-modulo-input"
+                label="Input"
+                value={asciiModuloInput}
+                onChange={setAsciiModuloInput}
+                placeholder={
+                  asciiModuloMode === 'encode'
+                    ? 'Paste numbers like 79 15 94 201 511 901 1111.'
+                    : 'Paste reversible groups like 4:7 0:15 5:4 11:3.'
+                }
+              />
+              <TextAreaPanel
+                id="ascii-modulo-output"
+                label="Output"
+                value={asciiModuloResult.output}
+                readOnly
+                placeholder="Modulo output appears here."
+                helperText={
+                  asciiModuloResult.error ||
+                  'Encode stores quotient:remainder pairs; decode returns the original numbers.'
+                }
+                isError={Boolean(asciiModuloResult.error)}
+                actions={<CopyButton value={asciiModuloResult.output} disabled={!asciiModuloResult.output} />}
               />
             </div>
           </div>

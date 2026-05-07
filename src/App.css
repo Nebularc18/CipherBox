@@ -441,6 +441,17 @@ input {
   padding: 0 16px;
 }
 
+input[type='number'] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 .text-input {
   max-width: 360px;
 }
