@@ -12,6 +12,7 @@ import {
   Shuffle,
   Sparkles,
   TextCursorInput,
+  X,
 } from 'lucide-react'
 import './App.css'
 import { CopyButton } from './components/CopyButton'
@@ -349,12 +350,34 @@ function App() {
     setHashError('')
   }, [hashInput])
 
-  const updateGridColumns = useCallback(() => {
+  const getDashboardColumnCount = useCallback(() => {
     if (dashboardRef.current) {
       const style = window.getComputedStyle(dashboardRef.current)
       const cols = style.gridTemplateColumns.split(' ').length
-      setGridColumns(cols || 1)
+      return cols || 1
     }
+    return 1
+  }, [])
+
+  const updateGridColumns = useCallback(() => {
+    setGridColumns(getDashboardColumnCount())
+  }, [getDashboardColumnCount])
+
+  const toggleTool = useCallback((toolId: string) => {
+    const nextView = currentView === toolId ? 'dashboard' : toolId
+
+    setGridColumns(getDashboardColumnCount())
+    setCurrentView(nextView)
+
+    if (nextView !== 'dashboard') {
+      setTimeout(() => {
+        document.getElementById('expanded-tool-container')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }, 50)
+    }
+  }, [currentView, getDashboardColumnCount])
+
+  const closeTool = useCallback(() => {
+    setCurrentView('dashboard')
   }, [])
 
   useEffect(() => {
@@ -376,6 +399,22 @@ function App() {
   useEffect(() => {
     updateGridColumns()
   }, [activeCategory, updateGridColumns])
+
+  useEffect(() => {
+    if (currentView === 'dashboard') return
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closeTool()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [closeTool, currentView])
 
   const runHash = async () => {
     if (!hashInput) {
@@ -1314,17 +1353,10 @@ function App() {
             <h1>
               Cipher<span>Forge</span>
             </h1>
-            <p className="hero-subtitle">
-              A browser toolbox for ciphers, hashes, and puzzle solving.
-            </p>
-          </div>
-          <div className="hero-visual" aria-hidden="true">
-            <div className="cipher-rain left">010011 110010 001101</div>
-            <div className="cipher-rain right">101001 001110 111001</div>
-            <div className="lock-orbit">
-              <LockKeyhole size={150} strokeWidth={1.2} />
-            </div>
-          </div>
+          <p className="hero-subtitle">
+            A browser toolbox for ciphers, hashes, and puzzle solving.
+          </p>
+        </div>
         </header>
 
         <div className="dashboard-container">
@@ -1336,12 +1368,7 @@ function App() {
                 style={{ order: index * 10 }}
               >
                 <ToolCard
-                  onClick={() => {
-                    setCurrentView(currentView === tool.id ? 'dashboard' : tool.id)
-                    setTimeout(() => {
-                      document.getElementById('expanded-tool-container')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                    }, 50)
-                  }}
+                  onClick={() => toggleTool(tool.id)}
                   title={tool.title}
                   description={tool.description}
                   badge={tool.badge}
@@ -1358,6 +1385,11 @@ function App() {
                   order: Math.floor(filteredTools.findIndex(t => t.id === currentView) / gridColumns) * gridColumns * 10 + (gridColumns * 10) - 5,
                 }}
               >
+                <div className="inline-tool-actions">
+                  <button className="ghost-button inline-tool-close" type="button" onClick={closeTool} aria-label="Close tool panel">
+                    <X size={18} strokeWidth={2} aria-hidden="true" />
+                  </button>
+                </div>
                 {renderTool(currentView)}
               </div>
             )}

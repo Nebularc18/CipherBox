@@ -190,10 +190,6 @@ body {
   max-width: 600px;
 }
 
-.hero-visual {
-  display: none;
-}
-
 .dashboard-container {
   display: flex;
   flex-direction: column;
@@ -218,6 +214,18 @@ body {
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
   animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   overflow: hidden;
+}
+
+.inline-tool-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
+.inline-tool-close {
+  width: 40px;
+  height: 40px;
+  padding: 0;
 }
 
 @keyframes slideDown {
