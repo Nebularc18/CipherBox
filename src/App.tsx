@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useRef, type Dispatch, type SetStateAction } from 'react'
+import { useCallback, useEffect, useMemo, useState, useRef, type Dispatch, type SetStateAction } from 'react'
 import {
   Binary,
   Braces,
@@ -187,8 +187,8 @@ const createBaseToolState = (): BaseToolState => ({
 })
 
 function App() {
-  const dashboardRef = useRef<HTMLDivElement>(null)
-  const [gridColumns, setGridColumns] = useState(3)
+  const dashboardRef = useRef<HTMLElement>(null)
+  const [gridColumns, setGridColumns] = useState(1)
   const [currentView, setCurrentView] = useState('dashboard')
   const [activeCategory, setActiveCategory] = useState('Home')
   const [caesarInput, setCaesarInput] = useState('')
@@ -349,29 +349,33 @@ function App() {
     setHashError('')
   }, [hashInput])
 
-  useEffect(() => {
-    const updateCols = () => {
-      if (dashboardRef.current) {
-        const style = window.getComputedStyle(dashboardRef.current)
-        const cols = style.gridTemplateColumns.split(' ').length
-        setGridColumns(cols || 1)
-      }
+  const updateGridColumns = useCallback(() => {
+    if (dashboardRef.current) {
+      const style = window.getComputedStyle(dashboardRef.current)
+      const cols = style.gridTemplateColumns.split(' ').length
+      setGridColumns(cols || 1)
     }
+  }, [])
 
-    updateCols()
-    window.addEventListener('resize', updateCols)
+  useEffect(() => {
+    updateGridColumns()
+    window.addEventListener('resize', updateGridColumns)
     
     let observer: ResizeObserver | null = null
     if (window.ResizeObserver && dashboardRef.current) {
-      observer = new ResizeObserver(updateCols)
+      observer = new ResizeObserver(updateGridColumns)
       observer.observe(dashboardRef.current)
     }
 
     return () => {
-      window.removeEventListener('resize', updateCols)
+      window.removeEventListener('resize', updateGridColumns)
       if (observer) observer.disconnect()
     }
-  }, [activeCategory])
+  }, [updateGridColumns])
+
+  useEffect(() => {
+    updateGridColumns()
+  }, [activeCategory, updateGridColumns])
 
   const runHash = async () => {
     if (!hashInput) {
