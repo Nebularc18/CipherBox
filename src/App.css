@@ -200,35 +200,6 @@ body {
   gap: 24px;
 }
 
-.dashboard-filters {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.filter-button {
-  padding: 6px 16px;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  background-color: var(--bg-panel);
-  color: var(--text-muted);
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.filter-button:hover {
-  background-color: var(--bg-hover);
-  color: var(--text-main);
-}
-
-.filter-button.active {
-  background-color: var(--bg-hover);
-  border-color: var(--border-color);
-  color: var(--text-main);
-}
-
 .dashboard {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -319,14 +290,14 @@ body {
   letter-spacing: 0.05em;
 }
 
-.tool-card h2 {
+.tool-card-title {
   font-size: 1.1rem;
   font-weight: 600;
   color: var(--text-main);
   margin: 0;
 }
 
-.tool-card p {
+.tool-card-description {
   font-size: 0.95rem;
   color: var(--text-muted);
   line-height: 1.5;
@@ -335,54 +306,6 @@ body {
 
 .tool-card-arrow {
   display: none;
-}
-
-/* TOOL VIEW */
-.tool-stack {
-  width: 100%;
-  max-width: 860px;
-  margin: 0 auto;
-}
-
-.view-header {
-  margin-bottom: 32px;
-}
-
-.back-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  background-color: var(--bg-panel);
-  color: var(--text-main);
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-family: inherit;
-}
-
-.back-button:hover {
-  background-color: var(--bg-hover);
-  border-color: #3f3f46;
-}
-
-.tool-section.hidden {
-  display: none;
-}
-
-.tool-section.active {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-  animation: fadeIn 0.25s ease-out forwards;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 .section-heading {
@@ -406,6 +329,18 @@ body {
   font-size: 2rem;
   font-weight: 600;
   letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.section-heading.compact {
+  align-items: center;
+  padding-bottom: 14px;
+  margin-bottom: 18px;
+}
+
+.section-heading.compact h3 {
+  font-size: 1rem;
+  font-weight: 600;
   margin: 0;
 }
 
@@ -496,6 +431,18 @@ textarea {
 input {
   height: 48px;
   padding: 0 16px;
+}
+
+.text-input {
+  max-width: 360px;
+}
+
+.wide-input {
+  max-width: 620px;
+}
+
+.inline-field {
+  width: max-content;
 }
 
 textarea:focus,
