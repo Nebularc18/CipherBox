@@ -8,6 +8,18 @@ import {
   encodeBinary,
   encodeHex,
 } from '../encodings'
+import {
+  a1z26Cipher,
+  asciiDecimalCipher,
+  atbashCipher,
+  baconCipher,
+  gronsfeldCipher,
+  letterValue,
+  morseCipher,
+  natoCipher,
+  polybiusCipher,
+  ternaryCipher,
+} from '../geocaching'
 import { hashSha256 } from '../hash'
 import { decryptKeyStream, encryptKeyStream } from '../keyStream'
 import {
@@ -98,6 +110,77 @@ describe('key stream cipher', () => {
 
   it('validates the key before returning empty decrypt output', () => {
     expect(() => decryptKeyStream('', 'notHex!')).toThrow('Key must use hex byte pairs.')
+  })
+})
+
+describe('geocaching ciphers', () => {
+  it('applies Atbash while preserving numbers and punctuation', () => {
+    expect(atbashCipher('Clue: N59 E018')).toBe('Xofv: M59 V018')
+    expect(atbashCipher(atbashCipher('Clue: N59 E018'))).toBe('Clue: N59 E018')
+  })
+
+  it('encodes and decodes A1Z26 with slash word separators', () => {
+    const encoded = '3 1 3 8 5 / 14 15 18 20 8'
+
+    expect(a1z26Cipher('CACHE NORTH', 'encode')).toBe(encoded)
+    expect(a1z26Cipher(encoded, 'decode')).toBe('CACHE NORTH')
+  })
+
+  it('encodes and decodes Morse code with digits used in coordinates', () => {
+    const encoded = '-. ..... ----. / . .---- ---..'
+
+    expect(morseCipher('N59 E18', 'encode')).toBe(encoded)
+    expect(morseCipher(encoded, 'decode')).toBe('N59 E18')
+  })
+
+  it('encodes and decodes Bacon A/B groups', () => {
+    const encoded = 'AAAAB AAABA AAABB / BBAAB'
+
+    expect(baconCipher('BCD Z', 'encode')).toBe(encoded)
+    expect(baconCipher(encoded, 'decode')).toBe('BCD Z')
+  })
+
+  it('encodes and decodes Polybius square values with I/J sharing a cell', () => {
+    const encoded = '13 11 13 23 15 / 24 42'
+
+    expect(polybiusCipher('CACHE JR', 'encode')).toBe(encoded)
+    expect(polybiusCipher(encoded, 'decode')).toBe('CACHE IR')
+  })
+
+  it('encodes and decodes Gronsfeld with a numeric key', () => {
+    const encoded = 'Fbgij Qpvum'
+
+    expect(gronsfeldCipher('Cache North', '31415', 'encode')).toBe(encoded)
+    expect(gronsfeldCipher(encoded, '31415', 'decode')).toBe('Cache North')
+  })
+
+  it('returns empty Gronsfeld output when the key has no digits', () => {
+    expect(gronsfeldCipher('Cache North', 'north', 'encode')).toBe('')
+  })
+
+  it('encodes and decodes NATO phonetic words', () => {
+    const encoded = 'Charlie Alfa Charlie Hotel Echo / November Oscar Romeo Tango Hotel'
+
+    expect(natoCipher('CACHE NORTH', 'encode')).toBe(encoded)
+    expect(natoCipher(encoded, 'decode')).toBe('CACHE NORTH')
+  })
+
+  it('calculates letter values for coordinate formulas', () => {
+    expect(letterValue('GEOCACHING')).toBe('7 + 5 + 15 + 3 + 1 + 3 + 8 + 9 + 14 + 7 = 72')
+  })
+
+  it('encodes and decodes ASCII decimal values', () => {
+    const encoded = '67 65 67 72 69'
+
+    expect(asciiDecimalCipher('CACHE', 'encode')).toBe(encoded)
+    expect(asciiDecimalCipher(encoded, 'decode')).toBe('CACHE')
+  })
+
+  it('encodes and decodes ternary letter codes', () => {
+    const encoded = '010 001 010 022 012 / 112 120 200 202 022'
+
+    expect(ternaryCipher('CACHE NORTH', 'encode')).toBe(encoded)
+    expect(ternaryCipher(encoded, 'decode')).toBe('CACHE NORTH')
   })
 })
 

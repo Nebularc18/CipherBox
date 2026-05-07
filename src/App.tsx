@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from
 import {
   Binary,
   Braces,
+  Compass,
   GitBranch,
   Hash,
   Home,
@@ -18,6 +19,18 @@ import { TextAreaPanel } from './components/TextAreaPanel'
 import { ToolCard } from './components/ToolCard'
 import { caesarCipher } from './utils/caesar'
 import { hashSha256 } from './utils/hash'
+import {
+  a1z26Cipher,
+  asciiDecimalCipher,
+  atbashCipher,
+  baconCipher,
+  gronsfeldCipher,
+  letterValue,
+  morseCipher,
+  natoCipher,
+  polybiusCipher,
+  ternaryCipher,
+} from './utils/geocaching'
 import {
   decodeBase64,
   decodeBinary,
@@ -65,6 +78,76 @@ const toolCards = [
     description: 'Encrypt coordinates and other mixed text with a repeating hex byte key.',
     badge: 'XOR',
     Icon: LockKeyhole,
+  },
+  {
+    id: 'atbash',
+    title: 'Atbash Cipher',
+    description: 'Mirror A-Z letters for quick geocache substitution clues.',
+    badge: 'Cache',
+    Icon: Compass,
+  },
+  {
+    id: 'a1z26',
+    title: 'A1Z26 Cipher',
+    description: 'Convert letters to 1-26 numbers and decode numbered cache hints.',
+    badge: 'Cache',
+    Icon: Compass,
+  },
+  {
+    id: 'morse',
+    title: 'Morse Code',
+    description: 'Translate dot-dash clue text, including coordinate digits.',
+    badge: 'Cache',
+    Icon: Compass,
+  },
+  {
+    id: 'bacon',
+    title: 'Bacon A/B Cipher',
+    description: 'Encode and decode five-symbol A/B groups used in puzzle caches.',
+    badge: 'Cache',
+    Icon: Compass,
+  },
+  {
+    id: 'polybius',
+    title: 'Polybius Square',
+    description: 'Convert letters through a 5x5 I/J square into row-column pairs.',
+    badge: 'Cache',
+    Icon: Compass,
+  },
+  {
+    id: 'gronsfeld',
+    title: 'Gronsfeld Cipher',
+    description: 'Use a numeric key as repeating Caesar shifts for cache text.',
+    badge: 'Cache',
+    Icon: KeyRound,
+  },
+  {
+    id: 'nato',
+    title: 'NATO Alphabet',
+    description: 'Translate Alfa, Bravo, Charlie-style phonetic clues.',
+    badge: 'Signal',
+    Icon: Compass,
+  },
+  {
+    id: 'letter-value',
+    title: 'Letter Value',
+    description: 'Calculate A1Z26 letter sums for final coordinate formulas.',
+    badge: 'Formula',
+    Icon: Binary,
+  },
+  {
+    id: 'ascii-decimal',
+    title: 'ASCII Decimal',
+    description: 'Convert between text and decimal character codes.',
+    badge: 'Encoding',
+    Icon: Braces,
+  },
+  {
+    id: 'ternary',
+    title: 'Ternary Code',
+    description: 'Convert letters to three-digit base-3 values used in puzzle sheets.',
+    badge: 'Encoding',
+    Icon: Braces,
   },
   {
     id: 'hash',
@@ -116,6 +199,26 @@ function App() {
   const [keyStreamKey, setKeyStreamKey] = useState('')
   const [keyStreamMode, setKeyStreamMode] = useState<Mode>('encode')
 
+  const [atbashInput, setAtbashInput] = useState('')
+  const [a1z26Input, setA1z26Input] = useState('')
+  const [a1z26Mode, setA1z26Mode] = useState<Mode>('encode')
+  const [morseInput, setMorseInput] = useState('')
+  const [morseMode, setMorseMode] = useState<Mode>('encode')
+  const [baconInput, setBaconInput] = useState('')
+  const [baconMode, setBaconMode] = useState<Mode>('encode')
+  const [polybiusInput, setPolybiusInput] = useState('')
+  const [polybiusMode, setPolybiusMode] = useState<Mode>('encode')
+  const [gronsfeldInput, setGronsfeldInput] = useState('')
+  const [gronsfeldKey, setGronsfeldKey] = useState('')
+  const [gronsfeldMode, setGronsfeldMode] = useState<Mode>('encode')
+  const [natoInput, setNatoInput] = useState('')
+  const [natoMode, setNatoMode] = useState<Mode>('encode')
+  const [letterValueInput, setLetterValueInput] = useState('')
+  const [asciiDecimalInput, setAsciiDecimalInput] = useState('')
+  const [asciiDecimalMode, setAsciiDecimalMode] = useState<Mode>('encode')
+  const [ternaryInput, setTernaryInput] = useState('')
+  const [ternaryMode, setTernaryMode] = useState<Mode>('encode')
+
   const [hashInput, setHashInput] = useState('')
   const [hashOutput, setHashOutput] = useState('')
   const [hashError, setHashError] = useState('')
@@ -157,6 +260,53 @@ function App() {
       }
     }
   }, [keyStreamInput, keyStreamKey, keyStreamMode])
+
+  const atbashOutput = useMemo(() => atbashCipher(atbashInput), [atbashInput])
+
+  const a1z26Output = useMemo(
+    () => a1z26Cipher(a1z26Input, a1z26Mode),
+    [a1z26Input, a1z26Mode],
+  )
+
+  const morseOutput = useMemo(
+    () => morseCipher(morseInput, morseMode),
+    [morseInput, morseMode],
+  )
+
+  const baconOutput = useMemo(
+    () => baconCipher(baconInput, baconMode),
+    [baconInput, baconMode],
+  )
+
+  const polybiusOutput = useMemo(
+    () => polybiusCipher(polybiusInput, polybiusMode),
+    [polybiusInput, polybiusMode],
+  )
+
+  const gronsfeldOutput = useMemo(
+    () => gronsfeldCipher(gronsfeldInput, gronsfeldKey, gronsfeldMode),
+    [gronsfeldInput, gronsfeldKey, gronsfeldMode],
+  )
+
+  const natoOutput = useMemo(
+    () => natoCipher(natoInput, natoMode),
+    [natoInput, natoMode],
+  )
+
+  const letterValueOutput = useMemo(
+    () => letterValue(letterValueInput),
+    [letterValueInput],
+  )
+
+  const asciiDecimalOutput = useMemo(
+    () => asciiDecimalCipher(asciiDecimalInput, asciiDecimalMode),
+    [asciiDecimalInput, asciiDecimalMode],
+  )
+
+  const ternaryOutput = useMemo(
+    () => ternaryCipher(ternaryInput, ternaryMode),
+    [ternaryInput, ternaryMode],
+  )
 
   const cleanupResults = useMemo(
     () => {
@@ -529,6 +679,434 @@ function App() {
                   disabled={!keyStreamResult.output}
                 />
               }
+            />
+          </div>
+        </section>
+
+        <section id="atbash" className="tool-section">
+          <div className="section-heading">
+            <div>
+              <p className="section-tag">Geocaching Clue</p>
+              <h2>Atbash Cipher</h2>
+            </div>
+          </div>
+
+          <div className="tool-grid two-column">
+            <TextAreaPanel
+              id="atbash-input"
+              label="Input"
+              value={atbashInput}
+              onChange={setAtbashInput}
+              placeholder="Paste Atbash text, such as Xofv: M59 V018."
+            />
+            <TextAreaPanel
+              id="atbash-output"
+              label="Output"
+              value={atbashInput ? atbashOutput : ''}
+              readOnly
+              placeholder="Mirrored text appears here."
+              helperText="Atbash is reciprocal, so decoding uses the same transform."
+              actions={<CopyButton value={atbashOutput} disabled={!atbashInput} />}
+            />
+          </div>
+        </section>
+
+        <section id="a1z26" className="tool-section">
+          <div className="section-heading">
+            <div>
+              <p className="section-tag">Geocaching Clue</p>
+              <h2>A1Z26 Cipher</h2>
+            </div>
+            <div className="control-strip">
+              <button
+                type="button"
+                className={`mode-button ${a1z26Mode === 'encode' ? 'active' : ''}`}
+                onClick={() => setA1z26Mode('encode')}
+              >
+                Encode
+              </button>
+              <button
+                type="button"
+                className={`mode-button ${a1z26Mode === 'decode' ? 'active' : ''}`}
+                onClick={() => setA1z26Mode('decode')}
+              >
+                Decode
+              </button>
+            </div>
+          </div>
+
+          <div className="tool-grid two-column">
+            <TextAreaPanel
+              id="a1z26-input"
+              label="Input"
+              value={a1z26Input}
+              onChange={setA1z26Input}
+              placeholder={a1z26Mode === 'encode' ? 'Type CACHE NORTH.' : 'Paste 3 1 3 8 5 / 14 15 18 20 8.'}
+            />
+            <TextAreaPanel
+              id="a1z26-output"
+              label="Output"
+              value={a1z26Input ? a1z26Output : ''}
+              readOnly
+              placeholder="Converted text appears here."
+              helperText="A1Z26 decodes numbers 1-26; use / between words."
+              actions={<CopyButton value={a1z26Output} disabled={!a1z26Input} />}
+            />
+          </div>
+        </section>
+
+        <section id="morse" className="tool-section">
+          <div className="section-heading">
+            <div>
+              <p className="section-tag">Geocaching Clue</p>
+              <h2>Morse Code</h2>
+            </div>
+            <div className="control-strip">
+              <button
+                type="button"
+                className={`mode-button ${morseMode === 'encode' ? 'active' : ''}`}
+                onClick={() => setMorseMode('encode')}
+              >
+                Encode
+              </button>
+              <button
+                type="button"
+                className={`mode-button ${morseMode === 'decode' ? 'active' : ''}`}
+                onClick={() => setMorseMode('decode')}
+              >
+                Decode
+              </button>
+            </div>
+          </div>
+
+          <div className="tool-grid two-column">
+            <TextAreaPanel
+              id="morse-input"
+              label="Input"
+              value={morseInput}
+              onChange={setMorseInput}
+              placeholder={morseMode === 'encode' ? 'Type N59 E18.' : 'Paste -. ..... ----. / . .---- ---..'}
+            />
+            <TextAreaPanel
+              id="morse-output"
+              label="Output"
+              value={morseInput ? morseOutput : ''}
+              readOnly
+              placeholder="Converted text appears here."
+              helperText="Morse decodes space-separated symbols; use / between words."
+              actions={<CopyButton value={morseOutput} disabled={!morseInput} />}
+            />
+          </div>
+        </section>
+
+        <section id="bacon" className="tool-section">
+          <div className="section-heading">
+            <div>
+              <p className="section-tag">Geocaching Clue</p>
+              <h2>Bacon A/B Cipher</h2>
+            </div>
+            <div className="control-strip">
+              <button
+                type="button"
+                className={`mode-button ${baconMode === 'encode' ? 'active' : ''}`}
+                onClick={() => setBaconMode('encode')}
+              >
+                Encode
+              </button>
+              <button
+                type="button"
+                className={`mode-button ${baconMode === 'decode' ? 'active' : ''}`}
+                onClick={() => setBaconMode('decode')}
+              >
+                Decode
+              </button>
+            </div>
+          </div>
+
+          <div className="tool-grid two-column">
+            <TextAreaPanel
+              id="bacon-input"
+              label="Input"
+              value={baconInput}
+              onChange={setBaconInput}
+              placeholder={baconMode === 'encode' ? 'Type CACHE.' : 'Paste AAABA AAAAB AAABB ...'}
+            />
+            <TextAreaPanel
+              id="bacon-output"
+              label="Output"
+              value={baconInput ? baconOutput : ''}
+              readOnly
+              placeholder="Converted text appears here."
+              helperText="Bacon A/B decodes five-letter A/B groups; use / between words."
+              actions={<CopyButton value={baconOutput} disabled={!baconInput} />}
+            />
+          </div>
+        </section>
+
+        <section id="polybius" className="tool-section">
+          <div className="section-heading">
+            <div>
+              <p className="section-tag">Geocaching Clue</p>
+              <h2>Polybius Square</h2>
+            </div>
+            <div className="control-strip">
+              <button
+                type="button"
+                className={`mode-button ${polybiusMode === 'encode' ? 'active' : ''}`}
+                onClick={() => setPolybiusMode('encode')}
+              >
+                Encode
+              </button>
+              <button
+                type="button"
+                className={`mode-button ${polybiusMode === 'decode' ? 'active' : ''}`}
+                onClick={() => setPolybiusMode('decode')}
+              >
+                Decode
+              </button>
+            </div>
+          </div>
+
+          <div className="tool-grid two-column">
+            <TextAreaPanel
+              id="polybius-input"
+              label="Input"
+              value={polybiusInput}
+              onChange={setPolybiusInput}
+              placeholder={
+                polybiusMode === 'encode' ? 'Type CACHE NORTH.' : 'Paste 13 11 13 23 15 / 33 34 42 44 23.'
+              }
+            />
+            <TextAreaPanel
+              id="polybius-output"
+              label="Output"
+              value={polybiusInput ? polybiusOutput : ''}
+              readOnly
+              placeholder="Converted text appears here."
+              helperText="Uses a 5x5 Polybius square with I/J sharing one cell."
+              actions={<CopyButton value={polybiusOutput} disabled={!polybiusInput} />}
+            />
+          </div>
+        </section>
+
+        <section id="gronsfeld" className="tool-section">
+          <div className="section-heading">
+            <div>
+              <p className="section-tag">Numeric Key Cipher</p>
+              <h2>Gronsfeld Cipher</h2>
+            </div>
+            <div className="control-strip">
+              <button
+                type="button"
+                className={`mode-button ${gronsfeldMode === 'encode' ? 'active' : ''}`}
+                onClick={() => setGronsfeldMode('encode')}
+              >
+                Encode
+              </button>
+              <button
+                type="button"
+                className={`mode-button ${gronsfeldMode === 'decode' ? 'active' : ''}`}
+                onClick={() => setGronsfeldMode('decode')}
+              >
+                Decode
+              </button>
+            </div>
+          </div>
+
+          <label className="field-group" htmlFor="gronsfeld-key">
+            <span>Numeric Key</span>
+            <input
+              id="gronsfeld-key"
+              className="text-input"
+              type="text"
+              value={gronsfeldKey}
+              onChange={(event) => setGronsfeldKey(event.target.value)}
+              placeholder="Example: 31415"
+              inputMode="numeric"
+            />
+          </label>
+
+          <div className="tool-grid two-column">
+            <TextAreaPanel
+              id="gronsfeld-input"
+              label="Input"
+              value={gronsfeldInput}
+              onChange={setGronsfeldInput}
+              placeholder="Type text to transform with a numeric key."
+            />
+            <TextAreaPanel
+              id="gronsfeld-output"
+              label="Output"
+              value={gronsfeldInput && gronsfeldKey ? gronsfeldOutput : ''}
+              readOnly
+              placeholder="Output appears once a key is provided."
+              helperText={!gronsfeldKey ? 'Only digits in the key are used.' : undefined}
+              actions={
+                <CopyButton
+                  value={gronsfeldOutput}
+                  disabled={!gronsfeldInput || !gronsfeldKey}
+                />
+              }
+            />
+          </div>
+        </section>
+
+        <section id="nato" className="tool-section">
+          <div className="section-heading">
+            <div>
+              <p className="section-tag">Signal Code</p>
+              <h2>NATO Alphabet</h2>
+            </div>
+            <div className="control-strip">
+              <button
+                type="button"
+                className={`mode-button ${natoMode === 'encode' ? 'active' : ''}`}
+                onClick={() => setNatoMode('encode')}
+              >
+                Encode
+              </button>
+              <button
+                type="button"
+                className={`mode-button ${natoMode === 'decode' ? 'active' : ''}`}
+                onClick={() => setNatoMode('decode')}
+              >
+                Decode
+              </button>
+            </div>
+          </div>
+
+          <div className="tool-grid two-column">
+            <TextAreaPanel
+              id="nato-input"
+              label="Input"
+              value={natoInput}
+              onChange={setNatoInput}
+              placeholder={natoMode === 'encode' ? 'Type CACHE NORTH.' : 'Paste Charlie Alfa Charlie Hotel Echo / November Oscar Romeo Tango Hotel.'}
+            />
+            <TextAreaPanel
+              id="nato-output"
+              label="Output"
+              value={natoInput ? natoOutput : ''}
+              readOnly
+              placeholder="Converted text appears here."
+              helperText="NATO decoding accepts space-separated phonetic words; use / between words."
+              actions={<CopyButton value={natoOutput} disabled={!natoInput} />}
+            />
+          </div>
+        </section>
+
+        <section id="letter-value" className="tool-section">
+          <div className="section-heading">
+            <div>
+              <p className="section-tag">Coordinate Formula</p>
+              <h2>Letter Value</h2>
+            </div>
+          </div>
+
+          <div className="tool-grid two-column">
+            <TextAreaPanel
+              id="letter-value-input"
+              label="Input"
+              value={letterValueInput}
+              onChange={setLetterValueInput}
+              placeholder="Type GEOCACHING or any formula word."
+            />
+            <TextAreaPanel
+              id="letter-value-output"
+              label="Output"
+              value={letterValueInput ? letterValueOutput : ''}
+              readOnly
+              placeholder="Letter values and total appear here."
+              helperText="Calculates A=1 through Z=26 and ignores non-letter characters."
+              actions={<CopyButton value={letterValueOutput} disabled={!letterValueInput} />}
+            />
+          </div>
+        </section>
+
+        <section id="ascii-decimal" className="tool-section">
+          <div className="section-heading">
+            <div>
+              <p className="section-tag">Encoding Utility</p>
+              <h2>ASCII Decimal</h2>
+            </div>
+            <div className="control-strip">
+              <button
+                type="button"
+                className={`mode-button ${asciiDecimalMode === 'encode' ? 'active' : ''}`}
+                onClick={() => setAsciiDecimalMode('encode')}
+              >
+                Encode
+              </button>
+              <button
+                type="button"
+                className={`mode-button ${asciiDecimalMode === 'decode' ? 'active' : ''}`}
+                onClick={() => setAsciiDecimalMode('decode')}
+              >
+                Decode
+              </button>
+            </div>
+          </div>
+
+          <div className="tool-grid two-column">
+            <TextAreaPanel
+              id="ascii-decimal-input"
+              label="Input"
+              value={asciiDecimalInput}
+              onChange={setAsciiDecimalInput}
+              placeholder={asciiDecimalMode === 'encode' ? 'Type CACHE.' : 'Paste 67 65 67 72 69.'}
+            />
+            <TextAreaPanel
+              id="ascii-decimal-output"
+              label="Output"
+              value={asciiDecimalInput ? asciiDecimalOutput : ''}
+              readOnly
+              placeholder="Converted text appears here."
+              helperText="Decoding accepts space-separated ASCII values from 0 to 127."
+              actions={<CopyButton value={asciiDecimalOutput} disabled={!asciiDecimalInput} />}
+            />
+          </div>
+        </section>
+
+        <section id="ternary" className="tool-section">
+          <div className="section-heading">
+            <div>
+              <p className="section-tag">Encoding Utility</p>
+              <h2>Ternary Code</h2>
+            </div>
+            <div className="control-strip">
+              <button
+                type="button"
+                className={`mode-button ${ternaryMode === 'encode' ? 'active' : ''}`}
+                onClick={() => setTernaryMode('encode')}
+              >
+                Encode
+              </button>
+              <button
+                type="button"
+                className={`mode-button ${ternaryMode === 'decode' ? 'active' : ''}`}
+                onClick={() => setTernaryMode('decode')}
+              >
+                Decode
+              </button>
+            </div>
+          </div>
+
+          <div className="tool-grid two-column">
+            <TextAreaPanel
+              id="ternary-input"
+              label="Input"
+              value={ternaryInput}
+              onChange={setTernaryInput}
+              placeholder={ternaryMode === 'encode' ? 'Type CACHE NORTH.' : 'Paste 010 001 010 022 012 / 112 120 200 202 022.'}
+            />
+            <TextAreaPanel
+              id="ternary-output"
+              label="Output"
+              value={ternaryInput ? ternaryOutput : ''}
+              readOnly
+              placeholder="Converted text appears here."
+              helperText="Uses A=001 through Z=222 in base 3; use / between words."
+              actions={<CopyButton value={ternaryOutput} disabled={!ternaryInput} />}
             />
           </div>
         </section>
