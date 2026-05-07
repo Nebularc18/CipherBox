@@ -185,7 +185,7 @@ export function morseCipher(input: string, mode: CipherMode) {
         return ' '
       }
 
-      return CHARACTER_BY_MORSE[token] ?? '?'
+      return CHARACTER_BY_MORSE[token] ?? token
     })
     .join('')
 }

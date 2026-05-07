@@ -140,6 +140,10 @@ describe('geocaching ciphers', () => {
     expect(morseCipher(encoded, 'decode')).toBe('N59 E18')
   })
 
+  it('passes unknown Morse decode tokens through unchanged', () => {
+    expect(morseCipher('... | ---', 'decode')).toBe('S|O')
+  })
+
   it('encodes and decodes Bacon A/B groups', () => {
     const encoded = 'AAAAB AAABA AAABB / BBAAB'
 
