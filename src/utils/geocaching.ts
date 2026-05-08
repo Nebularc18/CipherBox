@@ -361,7 +361,7 @@ export function asciiDecimalCipher(input: string, mode: CipherMode) {
       .split('')
       .map((character) => {
         const codePoint = character.charCodeAt(0)
-        return (codePoint <= 127 ? codePoint : 63).toString()
+        return (codePoint <= 255 ? codePoint : 63).toString()
       })
       .join(' ')
   }
@@ -372,13 +372,78 @@ export function asciiDecimalCipher(input: string, mode: CipherMode) {
     .map((token) => {
       const codePoint = Number.parseInt(token, 10)
 
-      if (!/^\d+$/.test(token) || codePoint > 127) {
+      if (!/^\d+$/.test(token) || codePoint > 255) {
         return token
       }
 
       return String.fromCharCode(codePoint)
     })
     .join('')
+}
+
+function parseModuloValues(input: string) {
+  const trimmed = input.trim()
+
+  if (!trimmed) {
+    return []
+  }
+
+  if (!/^[\d\s,;/|-]+$/.test(trimmed)) {
+    throw new Error('Input must contain whole decimal numbers.')
+  }
+
+  return trimmed.split(/[\s,;/|]+/).flatMap((token) => {
+    if (!token) {
+      return []
+    }
+
+    if (!/^-?\d+$/.test(token)) {
+      throw new Error('Number input must contain whole decimal values.')
+    }
+
+    return [Number.parseInt(token, 10)]
+  })
+}
+
+export function numberModuloCipher(input: string, modulus: number, mode: CipherMode) {
+  if (!Number.isInteger(modulus) || modulus < 2) {
+    throw new Error('Modulo must be a whole number of 2 or higher.')
+  }
+
+  if (mode === 'encode') {
+    return parseModuloValues(input)
+      .map((value) => {
+        const remainder = ((value % modulus) + modulus) % modulus
+        const quotient = (value - remainder) / modulus
+
+        return `${quotient}:${remainder}`
+      })
+      .join(' ')
+  }
+
+  return input
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((token) => {
+      const match = token.match(/^(-?\d+):(\d+)$/)
+
+      if (!match) {
+        throw new Error('Decode input must use quotient:remainder groups.')
+      }
+
+      const quotient = Number.parseInt(match[1], 10)
+      const remainder = Number.parseInt(match[2], 10)
+
+      if (remainder >= modulus) {
+        throw new Error('Remainders must be lower than the modulo value.')
+      }
+
+      const value = quotient * modulus + remainder
+
+      return value.toString()
+    })
+    .join(' ')
 }
 
 export function ternaryCipher(input: string, mode: CipherMode) {
