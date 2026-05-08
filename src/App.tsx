@@ -1176,7 +1176,7 @@ function App() {
                 <button type="button" onClick={() => setAsciiModuloValue((value) => Math.max(2, value - 1))}>
                   -
                 </button>
-                <button type="button" onClick={() => setAsciiModuloValue((value) => value + 1)}>
+                <button type="button" onClick={() => setAsciiModuloValue((value) => Math.min(10000, value + 1))}>
                   +
                 </button>
               </div>

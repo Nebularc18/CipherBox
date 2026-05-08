@@ -388,7 +388,7 @@ function parseModuloValues(input: string) {
     return []
   }
 
-  if (!/^[\d\s,;/|.-]+$/.test(trimmed)) {
+  if (!/^[\d\s,;/|-]+$/.test(trimmed)) {
     throw new Error('Input must contain whole decimal numbers.')
   }
 
