@@ -29,6 +29,58 @@ Start the dev server:
 npm run dev
 ```
 
+## Android app with Expo
+
+An Expo wrapper lives in [`mobile`](./mobile). It uses `react-native-webview` to package the existing CipherForge web app as an Android app while keeping the web app as the single source of truth.
+
+Install the mobile dependencies:
+
+```bash
+cd mobile
+npm install
+```
+
+Run on Android:
+
+```bash
+npm run android
+```
+
+Run with Expo Go on a phone:
+
+```bash
+npm run go
+```
+
+Then open Expo Go on your Android phone and scan the QR code shown in the terminal. If your phone cannot reach your computer on the same Wi-Fi network, use the tunnel command instead:
+
+```bash
+npm run go:tunnel
+```
+
+By default the app loads:
+
+```text
+https://nebularc18.github.io/CipherBox/
+```
+
+To point the Android app at another deployed URL or a local dev server, set `EXPO_PUBLIC_CIPHERFORGE_URL` in `mobile/.env`:
+
+```bash
+EXPO_PUBLIC_CIPHERFORGE_URL=http://10.0.2.2:5173/
+```
+
+`10.0.2.2` reaches your computer's localhost from the Android emulator. For a physical Android device, use your computer's LAN IP instead.
+
+Native Android builds enable cleartext HTTP only for non-production builds when `EXPO_PUBLIC_CIPHERFORGE_URL` starts with `http://`. Production builds remain HTTPS-only.
+
+Build an Android APK/AAB with EAS:
+
+```bash
+cd mobile
+npm run build:android
+```
+
 ## Build
 
 Create a production build:
