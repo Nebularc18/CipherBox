@@ -72,6 +72,8 @@ EXPO_PUBLIC_CIPHERFORGE_URL=http://10.0.2.2:5173/
 
 `10.0.2.2` reaches your computer's localhost from the Android emulator. For a physical Android device, use your computer's LAN IP instead.
 
+Native Android builds enable cleartext HTTP only for non-production builds when `EXPO_PUBLIC_CIPHERFORGE_URL` starts with `http://`. Production builds remain HTTPS-only.
+
 Build an Android APK/AAB with EAS:
 
 ```bash
