@@ -216,6 +216,12 @@ describe('geocaching ciphers', () => {
     expect(decimalCoordinatesToDdm('12.999999, 179.999999')).toBe(
       'N 13° 00.000 E 180° 00.000',
     )
+    expect(decimalCoordinatesToDdm('89.999999, 0')).toBe(
+      'N 90° 00.000 E 000° 00.000',
+    )
+    expect(decimalCoordinatesToDdm('90, 180')).toBe(
+      'N 90° 00.000 E 180° 00.000',
+    )
   })
 
   it('rejects invalid decimal coordinate input', () => {

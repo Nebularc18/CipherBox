@@ -392,7 +392,7 @@ function formatCoordinatePart(
   let degrees = Math.floor(absoluteValue)
   let minutes = (absoluteValue - degrees) * 60
 
-  minutes = Math.round(minutes * 1000) / 1000
+  minutes = Number.parseFloat(minutes.toFixed(3))
 
   if (minutes >= 60) {
     degrees += 1
