@@ -13,6 +13,7 @@ import {
   asciiDecimalCipher,
   atbashCipher,
   baconCipher,
+  decimalCoordinatesToDdm,
   gronsfeldCipher,
   letterValue,
   morseCipher,
@@ -197,6 +198,39 @@ describe('geocaching ciphers', () => {
 
   it('keeps letter value output format consistent when there are no letters', () => {
     expect(letterValue('123 !?')).toBe('0 = 0')
+  })
+
+  it('converts decimal coordinates to DDM coordinate format', () => {
+    expect(decimalCoordinatesToDdm('56.17240822, 15.58957037')).toBe(
+      'N 56° 10.344 E 015° 35.374',
+    )
+  })
+
+  it('uses S and W hemispheres for negative decimal coordinates', () => {
+    expect(decimalCoordinatesToDdm('-56.17240822 -15.58957037')).toBe(
+      'S 56° 10.344 W 015° 35.374',
+    )
+  })
+
+  it('carries rounded DDM minutes into degrees', () => {
+    expect(decimalCoordinatesToDdm('12.999999, 179.999999')).toBe(
+      'N 13° 00.000 E 180° 00.000',
+    )
+    expect(decimalCoordinatesToDdm('89.999999, 0')).toBe(
+      'N 90° 00.000 E 000° 00.000',
+    )
+    expect(decimalCoordinatesToDdm('90, 180')).toBe(
+      'N 90° 00.000 E 180° 00.000',
+    )
+  })
+
+  it('rejects invalid decimal coordinate input', () => {
+    expect(() => decimalCoordinatesToDdm('95, 15')).toThrow('Latitude must be between -90 and 90.')
+    expect(() => decimalCoordinatesToDdm('56, 181')).toThrow('Longitude must be between -180 and 180.')
+    expect(() => decimalCoordinatesToDdm('56 only')).toThrow('Coordinates must be valid decimal numbers.')
+    expect(() => decimalCoordinatesToDdm('56north, 15')).toThrow(
+      'Coordinates must be valid decimal numbers.',
+    )
   })
 
   it('encodes and decodes ASCII decimal values', () => {

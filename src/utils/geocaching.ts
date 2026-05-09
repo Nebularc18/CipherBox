@@ -381,6 +381,69 @@ export function asciiDecimalCipher(input: string, mode: CipherMode) {
     .join('')
 }
 
+function formatCoordinatePart(
+  value: number,
+  positiveHemisphere: string,
+  negativeHemisphere: string,
+  degreeWidth: number,
+) {
+  const hemisphere = value < 0 ? negativeHemisphere : positiveHemisphere
+  const absoluteValue = Math.abs(value)
+  let degrees = Math.floor(absoluteValue)
+  let minutes = (absoluteValue - degrees) * 60
+
+  minutes = Number.parseFloat(minutes.toFixed(3))
+
+  if (minutes >= 60) {
+    degrees += 1
+    minutes = 0
+  }
+
+  const formattedDegrees = degrees.toString().padStart(degreeWidth, '0')
+  const formattedMinutes = minutes.toFixed(3).padStart(6, '0')
+
+  return `${hemisphere} ${formattedDegrees}° ${formattedMinutes}`
+}
+
+export function decimalCoordinatesToDdm(input: string) {
+  const trimmed = input.trim()
+
+  if (!trimmed) {
+    return ''
+  }
+
+  const parts = trimmed.split(/[,\s]+/).filter(Boolean)
+
+  if (parts.length !== 2) {
+    throw new Error('Enter latitude and longitude as two decimal numbers.')
+  }
+
+  const decimalPattern = /^[+-]?(?:\d+\.?\d*|\.\d+)$/
+
+  if (!parts.every((part) => decimalPattern.test(part))) {
+    throw new Error('Coordinates must be valid decimal numbers.')
+  }
+
+  const [latitude, longitude] = parts.map((part) => Number.parseFloat(part))
+
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+    throw new Error('Coordinates must be valid decimal numbers.')
+  }
+
+  if (latitude < -90 || latitude > 90) {
+    throw new Error('Latitude must be between -90 and 90.')
+  }
+
+  if (longitude < -180 || longitude > 180) {
+    throw new Error('Longitude must be between -180 and 180.')
+  }
+
+  return [
+    formatCoordinatePart(latitude, 'N', 'S', 2),
+    formatCoordinatePart(longitude, 'E', 'W', 3),
+  ].join(' ')
+}
+
 function parseModuloValues(input: string) {
   const trimmed = input.trim()
 
