@@ -124,11 +124,12 @@ export default function App() {
                   source={{ uri: APP_URL }}
                   style={styles.webView}
                   onLoadStart={() => setIsLoading(true)}
-                  onLoadEnd={() => {
-                    webViewRef.current?.injectJavaScript(WEBVIEW_VIEWPORT_SCRIPT);
+                  onLoadEnd={() => setIsLoading(false)}
+                  onError={() => {
+                    setHasError(true);
                     setIsLoading(false);
                   }}
-                  onError={() => {
+                  onHttpError={() => {
                     setHasError(true);
                     setIsLoading(false);
                   }}
