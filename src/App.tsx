@@ -25,6 +25,7 @@ import {
   asciiDecimalCipher,
   atbashCipher,
   baconCipher,
+  decimalCoordinatesToDdm,
   gronsfeldCipher,
   letterValue,
   morseCipher,
@@ -138,6 +139,13 @@ const toolCards = [
     Icon: Binary,
   },
   {
+    id: 'coordinates',
+    title: 'Coordinates',
+    description: 'Convert decimal latitude and longitude into geocaching DDM format.',
+    badge: 'Formula',
+    Icon: Compass,
+  },
+  {
     id: 'ascii-decimal',
     title: 'ASCII Decimal',
     description: 'Convert between text and decimal character codes.',
@@ -227,6 +235,7 @@ function App() {
   const [natoInput, setNatoInput] = useState('')
   const [natoMode, setNatoMode] = useState<Mode>('encode')
   const [letterValueInput, setLetterValueInput] = useState('')
+  const [coordinatesInput, setCoordinatesInput] = useState('')
   const [asciiDecimalInput, setAsciiDecimalInput] = useState('')
   const [asciiDecimalMode, setAsciiDecimalMode] = useState<Mode>('encode')
   const [asciiModuloInput, setAsciiModuloInput] = useState('')
@@ -324,6 +333,24 @@ function App() {
     () => letterValue(letterValueInput),
     [letterValueInput],
   )
+
+  const coordinatesResult = useMemo(() => {
+    if (!coordinatesInput) {
+      return { output: '', error: '' }
+    }
+
+    try {
+      return {
+        output: decimalCoordinatesToDdm(coordinatesInput),
+        error: '',
+      }
+    } catch (error) {
+      return {
+        output: '',
+        error: error instanceof Error ? error.message : 'Coordinate conversion failed.',
+      }
+    }
+  }, [coordinatesInput])
 
   const asciiDecimalOutput = useMemo(
     () => asciiDecimalCipher(asciiDecimalInput, asciiDecimalMode),
@@ -1083,6 +1110,40 @@ function App() {
                 placeholder="Letter values and total appear here."
                 helperText="Calculates A=1 through Z=26 and ignores non-letter characters."
                 actions={<CopyButton value={letterValueOutput} disabled={!letterValueInput} />}
+              />
+            </div>
+          </div>
+        )
+      case 'coordinates':
+        return (
+          <div className="inline-tool">
+            <div className="section-heading">
+              <div>
+                <p className="section-tag">Coordinate Utility</p>
+                <h2>Coordinates</h2>
+              </div>
+            </div>
+
+            <div className="tool-grid two-column">
+              <TextAreaPanel
+                id="coordinates-input"
+                label="Input"
+                value={coordinatesInput}
+                onChange={setCoordinatesInput}
+                placeholder="Paste decimal coordinates like 56.17240822, 15.58957037."
+              />
+              <TextAreaPanel
+                id="coordinates-output"
+                label="Output"
+                value={coordinatesResult.output}
+                readOnly
+                placeholder="N 56° 10.344 E 015° 35.374"
+                helperText={
+                  coordinatesResult.error ||
+                  'Formats decimal latitude and longitude as degrees plus decimal minutes.'
+                }
+                isError={Boolean(coordinatesResult.error)}
+                actions={<CopyButton value={coordinatesResult.output} disabled={!coordinatesResult.output} />}
               />
             </div>
           </div>
