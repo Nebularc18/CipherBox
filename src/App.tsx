@@ -254,7 +254,6 @@ function App() {
   const [binaryState, setBinaryState] = useState<BaseToolState>(createBaseToolState)
 
   const [cleanupInput, setCleanupInput] = useState('')
-  const [showScrollTop, setShowScrollTop] = useState(false)
 
   const filteredTools = useMemo(() => {
     if (activeCategory === 'Home') return toolCards
@@ -408,18 +407,6 @@ function App() {
     setHashError('')
   }, [hashInput])
 
-  useEffect(() => {
-    const updateScrollButton = () => {
-      setShowScrollTop(window.scrollY > 360)
-    }
-
-    updateScrollButton()
-    window.addEventListener('scroll', updateScrollButton, { passive: true })
-
-    return () => {
-      window.removeEventListener('scroll', updateScrollButton)
-    }
-  }, [])
 
   const getDashboardColumnCount = useCallback(() => {
     if (dashboardRef.current) {
@@ -449,6 +436,12 @@ function App() {
 
   const closeTool = useCallback(() => {
     setCurrentView('dashboard')
+  }, [])
+
+  const scrollToTop = useCallback(() => {
+    setCurrentView('dashboard')
+    setActiveCategory('Home')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [])
 
   useEffect(() => {
@@ -1578,11 +1571,12 @@ function App() {
       </main>
       <button
         type="button"
-        className={`scroll-top-button ${showScrollTop ? 'visible' : ''}`}
-        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        className="scroll-top-button"
+        onClick={scrollToTop}
         aria-label="Scroll to top"
+        title="Scroll to top"
       >
-        <ArrowUp size={30} strokeWidth={2.4} aria-hidden="true" />
+        <ArrowUp size={22} strokeWidth={2.2} aria-hidden="true" />
       </button>
     </div>
   )

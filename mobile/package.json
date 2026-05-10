@@ -1,25 +1,35 @@
 {
   "name": "cipherforge-mobile",
-  "version": "0.1.0",
-  "private": true,
-  "main": "node_modules/expo/AppEntry.js",
+  "version": "1.0.0",
+  "main": "index.ts",
   "scripts": {
     "start": "expo start",
+    "go": "expo start --go",
+    "go:lan": "expo start --go --lan",
+    "go:tunnel": "expo start --go --tunnel",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "build:android": "npx eas-cli build --platform android --profile production",
+    "build:apk": "npx eas-cli build --platform android --profile preview",
+    "prebuild:android": "expo prebuild --platform android"
   },
   "dependencies": {
     "expo": "~55.0.23",
-    "expo-constants": "~55.0.16",
     "expo-status-bar": "~55.0.6",
+    "lucide-react-native": "^1.14.0",
     "react": "19.2.0",
     "react-native": "0.83.6",
     "react-native-safe-area-context": "~5.6.2",
+    "react-native-svg": "15.15.3",
     "react-native-webview": "13.16.0"
   },
   "devDependencies": {
-    "@types/react": "~19.2.0",
-    "typescript": "~6.0.2"
-  }
+    "@types/react": "~19.2.10",
+    "typescript": "~5.9.2"
+  },
+  "overrides": {
+    "postcss": "^8.5.10"
+  },
+  "private": true
 }
