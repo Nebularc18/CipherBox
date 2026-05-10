@@ -10,7 +10,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "build:android": "npx eas-cli build --platform android",
+    "build:android": "npx eas-cli build --platform android --profile production",
     "build:apk": "npx eas-cli build --platform android --profile preview",
     "prebuild:android": "expo prebuild --platform android"
   },
