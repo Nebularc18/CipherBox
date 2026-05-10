@@ -4,7 +4,7 @@
     "slug": "cipherforge",
     "version": "0.1.0",
     "orientation": "portrait",
-    "icon": "../public/favicon.svg",
+    "icon": "./assets/icon.png",
     "scheme": "cipherforge",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,

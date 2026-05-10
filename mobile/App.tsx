@@ -44,8 +44,10 @@ const disableZoomScript = `
 
     document.documentElement.style.touchAction = 'manipulation';
     document.documentElement.style.overflowX = 'hidden';
-    document.body.style.overflowX = 'hidden';
-    document.body.style.width = '100%';
+    if (document.body) {
+      document.body.style.overflowX = 'hidden';
+      document.body.style.width = '100%';
+    }
   })();
   true;
 `
