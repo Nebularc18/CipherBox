@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "CipherForge",
+    "slug": "cipherforge",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "../public/favicon.svg",
+    "scheme": "cipherforge",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "splash": {
+      "backgroundColor": "#030a0f"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "edgeToEdgeEnabled": true,
+      "package": "com.cipherforge.mobile"
+    }
+  }
+}

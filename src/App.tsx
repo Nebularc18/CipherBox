@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, useRef, type Dispatch, type SetStateAction } from 'react'
 import {
+  ArrowUp,
   Binary,
   Braces,
   Compass,
@@ -253,6 +254,7 @@ function App() {
   const [binaryState, setBinaryState] = useState<BaseToolState>(createBaseToolState)
 
   const [cleanupInput, setCleanupInput] = useState('')
+  const [showScrollTop, setShowScrollTop] = useState(false)
 
   const filteredTools = useMemo(() => {
     if (activeCategory === 'Home') return toolCards
@@ -405,6 +407,19 @@ function App() {
     setHashOutput('')
     setHashError('')
   }, [hashInput])
+
+  useEffect(() => {
+    const updateScrollButton = () => {
+      setShowScrollTop(window.scrollY > 360)
+    }
+
+    updateScrollButton()
+    window.addEventListener('scroll', updateScrollButton, { passive: true })
+
+    return () => {
+      window.removeEventListener('scroll', updateScrollButton)
+    }
+  }, [])
 
   const getDashboardColumnCount = useCallback(() => {
     if (dashboardRef.current) {
@@ -1561,6 +1576,14 @@ function App() {
         </div>
 
       </main>
+      <button
+        type="button"
+        className={`scroll-top-button ${showScrollTop ? 'visible' : ''}`}
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        aria-label="Scroll to top"
+      >
+        <ArrowUp size={30} strokeWidth={2.4} aria-hidden="true" />
+      </button>
     </div>
   )
 }
