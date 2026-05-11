@@ -112,7 +112,7 @@ export default function App() {
                 <Text style={styles.errorTitle}>Could not load CipherForge</Text>
                 <Text style={styles.errorBody}>
                   Check the URL in EXPO_PUBLIC_CIPHERFORGE_URL or make sure the
-                  hosted web app is reachable from this Android device.
+                  hosted web app is reachable from this device.
                 </Text>
                 <Pressable style={styles.primaryButton} onPress={reload}>
                   <Text style={styles.primaryButtonText}>Try again</Text>
@@ -136,7 +136,6 @@ export default function App() {
                   }}
                   onNavigationStateChange={handleNavigation}
                   injectedJavaScriptBeforeContentLoaded={WEBVIEW_VIEWPORT_SCRIPT}
-                  injectedJavaScript={WEBVIEW_VIEWPORT_SCRIPT}
                   scalesPageToFit={false}
                   overScrollMode="never"
                   showsHorizontalScrollIndicator={false}
