@@ -9,12 +9,18 @@
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
       "backgroundColor": "#030a0f"
     },
     "ios": {
       "supportsTablet": true
     },
     "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#030a0f"
+      },
       "edgeToEdgeEnabled": true,
       "package": "com.cipherforge.mobile"
     }
