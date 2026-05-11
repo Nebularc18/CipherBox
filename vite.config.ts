@@ -5,19 +5,29 @@ import { resolve } from 'node:path'
 
 const repoName = process.env.GITHUB_REPOSITORY?.split('/')[1] ?? 'cipherforge'
 const serviceWorkerVersion = process.env.GITHUB_SHA ?? `${Date.now()}`
+const serviceWorkerPath = resolve(import.meta.dirname, 'src/sw.js')
+
+function createServiceWorkerSource() {
+  return readFileSync(serviceWorkerPath, 'utf8')
+    .replaceAll('__CACHE_VERSION__', serviceWorkerVersion)
+}
 
 export default defineConfig({
   plugins: [
     react(),
     {
       name: 'cipherforge-service-worker',
-      apply: 'build',
+      configureServer(server) {
+        server.middlewares.use('/sw.js', (_request, response) => {
+          response.setHeader('Content-Type', 'application/javascript')
+          response.end(createServiceWorkerSource())
+        })
+      },
       generateBundle() {
-        const source = readFileSync(resolve(import.meta.dirname, 'src/sw.js'), 'utf8')
         this.emitFile({
           type: 'asset',
           fileName: 'sw.js',
-          source: source.replaceAll('__CACHE_VERSION__', serviceWorkerVersion),
+          source: createServiceWorkerSource(),
         })
       },
     },
