@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { WebView, type WebViewNavigation } from 'react-native-webview';
+import favicon from './assets/favicon.png';
 
 const DEFAULT_APP_URL = 'https://nebularc18.github.io/CipherBox/';
 const APP_URL = process.env.EXPO_PUBLIC_CIPHERFORGE_URL || DEFAULT_APP_URL;
@@ -89,7 +90,7 @@ export default function App() {
           <View style={styles.header}>
             <View style={styles.headerIdentity}>
               <Image
-                source={require('./assets/favicon.png')}
+                source={favicon}
                 style={styles.headerLogo}
                 resizeMode="contain"
               />
