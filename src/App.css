@@ -27,7 +27,6 @@ body {
   font-family: var(--font-sans);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
 }
 
 .app-frame {
@@ -35,7 +34,7 @@ body {
   grid-template-columns: 240px minmax(0, 1fr);
   min-height: 100vh;
   max-width: 100vw;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* SIDEBAR */
@@ -668,7 +667,7 @@ input::placeholder {
   .app-frame {
     grid-template-columns: 1fr;
     max-width: 100%;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
   .sidebar {
     height: auto;
@@ -694,7 +693,7 @@ input::placeholder {
   .app-shell {
     padding: 24px 20px;
     max-width: 100%;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 }
 

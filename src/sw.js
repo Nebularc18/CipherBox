@@ -1,7 +1,6 @@
-const CACHE_NAME = 'cipherforge-shell-v1'
+const CACHE_NAME = 'cipherforge-shell-__CACHE_VERSION__'
 const APP_SHELL = [
   './',
-  './index.html',
   './favicon.svg',
   './manifest.webmanifest',
 ]
