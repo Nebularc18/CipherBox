@@ -27,7 +27,6 @@ body {
   font-family: var(--font-sans);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
 }
 
 .app-frame {
@@ -35,7 +34,7 @@ body {
   grid-template-columns: 240px minmax(0, 1fr);
   min-height: 100vh;
   max-width: 100vw;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* SIDEBAR */
@@ -667,6 +666,8 @@ input::placeholder {
 @media (max-width: 1024px) {
   .app-frame {
     grid-template-columns: 1fr;
+    max-width: 100%;
+    overflow-x: clip;
   }
   .sidebar {
     height: auto;
@@ -691,7 +692,50 @@ input::placeholder {
   }
   .app-shell {
     padding: 24px 20px;
+    max-width: 100%;
+    overflow-x: clip;
   }
+}
+
+@media (max-width: 720px) {
+  .sidebar {
+    padding: 18px 14px;
+  }
+
+  .side-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .side-nav-button {
+    min-width: 0;
+  }
+
+  .app-shell {
+    padding: 20px 0;
+  }
+
+  .dashboard {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hero-panel,
+  .inline-tool-container,
+  .tool-card,
+  .encoding-panel,
+  .result-card,
+  .metric-card {
+    max-width: 100%;
+  }
+
+  .cleanup-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .inline-field {
+    width: 100%;
+  }
+
   .scroll-top-button {
     right: 16px;
     bottom: 16px;

@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { WebView, type WebViewNavigation } from 'react-native-webview';
+import favicon from './assets/favicon.png';
 
 const DEFAULT_APP_URL = 'https://nebularc18.github.io/CipherBox/';
 const APP_URL = process.env.EXPO_PUBLIC_CIPHERFORGE_URL || DEFAULT_APP_URL;
@@ -89,7 +90,7 @@ export default function App() {
           <View style={styles.header}>
             <View style={styles.headerIdentity}>
               <Image
-                source={require('./assets/favicon.png')}
+                source={favicon}
                 style={styles.headerLogo}
                 resizeMode="contain"
               />
@@ -111,7 +112,7 @@ export default function App() {
                 <Text style={styles.errorTitle}>Could not load CipherForge</Text>
                 <Text style={styles.errorBody}>
                   Check the URL in EXPO_PUBLIC_CIPHERFORGE_URL or make sure the
-                  hosted web app is reachable from this Android device.
+                  hosted web app is reachable from this device.
                 </Text>
                 <Pressable style={styles.primaryButton} onPress={reload}>
                   <Text style={styles.primaryButtonText}>Try again</Text>
@@ -135,7 +136,6 @@ export default function App() {
                   }}
                   onNavigationStateChange={handleNavigation}
                   injectedJavaScriptBeforeContentLoaded={WEBVIEW_VIEWPORT_SCRIPT}
-                  injectedJavaScript={WEBVIEW_VIEWPORT_SCRIPT}
                   scalesPageToFit={false}
                   overScrollMode="never"
                   showsHorizontalScrollIndicator={false}

@@ -407,6 +407,7 @@ function App() {
     setHashError('')
   }, [hashInput])
 
+
   const getDashboardColumnCount = useCallback(() => {
     if (dashboardRef.current) {
       const style = window.getComputedStyle(dashboardRef.current)

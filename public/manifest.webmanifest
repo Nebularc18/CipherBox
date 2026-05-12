@@ -1,0 +1,20 @@
+{
+  "name": "CipherForge",
+  "short_name": "CipherForge",
+  "description": "A browser toolbox for ciphers, hashes, encodings, and puzzle solving.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "background_color": "#030a0f",
+  "theme_color": "#030a0f",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
