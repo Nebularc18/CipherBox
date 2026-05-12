@@ -7,6 +7,9 @@
         "projectId": "85884e87-82a8-46fa-ad1b-2dfc779bd375"
       }
     },
+    "ios": {
+      "bundleIdentifier": "com.nebularc.cipherforge"
+    },
     "android": {
       "package": "com.nebularc.cipherforge"
     }
