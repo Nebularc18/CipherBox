@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=20.19.4"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -12,9 +15,11 @@
   },
   "dependencies": {
     "@fontsource/space-grotesk": "^5.2.10",
+    "expo": "^55.0.23",
     "lucide-react": "^1.14.0",
     "react": "^19.2.5",
-    "react-dom": "^19.2.5"
+    "react-dom": "^19.2.5",
+    "react-native-web": "^0.21.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

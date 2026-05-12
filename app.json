@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "85884e87-82a8-46fa-ad1b-2dfc779bd375"
+      }
+    },
+    "android": {
+      "package": "com.nebularc.cipherforge"
+    }
+  }
+}
