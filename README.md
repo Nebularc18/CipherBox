@@ -16,6 +16,7 @@ CipherForge is a static browser toolbox for cipher experiments, quick encoding w
 Requirements:
 
 - Node.js 20 or newer
+- React, React DOM, React Native, and TypeScript versions are pinned to the Expo SDK 55 toolchain expectations. Check `npx expo-doctor` before changing them.
 
 Install dependencies:
 

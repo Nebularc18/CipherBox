@@ -2,8 +2,13 @@
   "name": "cipherforge",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
+  "engines": {
+    "node": ">=20.19.4"
+  },
   "scripts": {
+    "start": "expo start",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "test": "vitest run",
@@ -12,9 +17,12 @@
   },
   "dependencies": {
     "@fontsource/space-grotesk": "^5.2.10",
+    "expo": "^55.0.23",
     "lucide-react": "^1.14.0",
-    "react": "^19.2.5",
-    "react-dom": "^19.2.5"
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "react-native": "0.83.6",
+    "react-native-web": "^0.21.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -26,7 +34,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.5.0",
-    "typescript": "~6.0.2",
+    "typescript": "~5.9.2",
     "typescript-eslint": "^8.58.2",
     "vite": "^8.0.10",
     "vitest": "^4.1.5"
