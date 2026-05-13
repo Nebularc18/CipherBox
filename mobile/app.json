@@ -22,7 +22,7 @@
         "backgroundColor": "#030a0f"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.cipherforge.mobile"
+      "package": "com.cipherbox.app"
     }
   }
 }
