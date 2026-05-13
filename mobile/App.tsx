@@ -1,20 +1,20 @@
 import { StatusBar } from 'expo-status-bar';
-import { ArrowUp } from 'lucide-react-native';
 import { useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Image,
   Pressable,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { WebView, type WebViewNavigation } from 'react-native-webview';
-import favicon from './assets/favicon.png';
+import { WebView } from 'react-native-webview';
 
 const DEFAULT_APP_URL = 'https://nebularc18.github.io/CipherBox/';
-const APP_URL = process.env.EXPO_PUBLIC_CIPHERFORGE_URL || DEFAULT_APP_URL;
+const APP_URL =
+  process.env.EXPO_PUBLIC_CIPHERBOX_URL ||
+  process.env.EXPO_PUBLIC_CIPHERFORGE_URL ||
+  DEFAULT_APP_URL;
 const WEBVIEW_VIEWPORT_SCRIPT = `
   (function () {
     const viewport = document.querySelector('meta[name="viewport"]') || document.createElement('meta');
@@ -63,7 +63,6 @@ export default function App() {
   const webViewRef = useRef<WebView>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
-  const [currentUrl, setCurrentUrl] = useState(APP_URL);
 
   const reload = () => {
     setHasError(false);
@@ -71,47 +70,17 @@ export default function App() {
     webViewRef.current?.reload();
   };
 
-  const scrollToTop = () => {
-    webViewRef.current?.injectJavaScript(`
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      true;
-    `);
-  };
-
-  const handleNavigation = (event: WebViewNavigation) => {
-    setCurrentUrl(event.url);
-  };
-
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.safeArea}>
         <StatusBar style="light" />
         <View style={styles.container}>
-          <View style={styles.header}>
-            <View style={styles.headerIdentity}>
-              <Image
-                source={favicon}
-                style={styles.headerLogo}
-                resizeMode="contain"
-              />
-              <View style={styles.headerCopy}>
-                <Text style={styles.brand}>CipherForge</Text>
-                <Text style={styles.url} numberOfLines={1}>
-                  {currentUrl}
-                </Text>
-              </View>
-            </View>
-            <Pressable style={styles.reloadButton} onPress={reload}>
-              <Text style={styles.reloadText}>Reload</Text>
-            </Pressable>
-          </View>
-
           <View style={styles.webShell}>
             {hasError ? (
               <View style={styles.errorPanel}>
-                <Text style={styles.errorTitle}>Could not load CipherForge</Text>
+                <Text style={styles.errorTitle}>Could not load CipherBox</Text>
                 <Text style={styles.errorBody}>
-                  Check the URL in EXPO_PUBLIC_CIPHERFORGE_URL or make sure the
+                  Check the URL in EXPO_PUBLIC_CIPHERBOX_URL or make sure the
                   hosted web app is reachable from this device.
                 </Text>
                 <Pressable style={styles.primaryButton} onPress={reload}>
@@ -134,7 +103,6 @@ export default function App() {
                     setHasError(true);
                     setIsLoading(false);
                   }}
-                  onNavigationStateChange={handleNavigation}
                   injectedJavaScriptBeforeContentLoaded={WEBVIEW_VIEWPORT_SCRIPT}
                   scalesPageToFit={false}
                   overScrollMode="never"
@@ -155,16 +123,6 @@ export default function App() {
               </>
             )}
           </View>
-          {!hasError ? (
-            <Pressable
-              style={styles.scrollTopButton}
-              onPress={scrollToTop}
-              accessibilityRole="button"
-              accessibilityLabel="Scroll to top"
-            >
-              <ArrowUp color="#10b981" size={26} strokeWidth={2.6} />
-            </Pressable>
-          ) : null}
         </View>
       </SafeAreaView>
     </SafeAreaProvider>
@@ -179,59 +137,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#09090b',
-  },
-  header: {
-    minHeight: 64,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#27272a',
-    backgroundColor: '#09090b',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 12,
-  },
-  headerIdentity: {
-    flex: 1,
-    minWidth: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  headerLogo: {
-    width: 34,
-    height: 34,
-    borderRadius: 8,
-  },
-  headerCopy: {
-    flex: 1,
-    minWidth: 0,
-  },
-  brand: {
-    color: '#f4f4f5',
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  url: {
-    maxWidth: 230,
-    marginTop: 2,
-    color: '#a1a1aa',
-    fontSize: 11,
-  },
-  reloadButton: {
-    minHeight: 40,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: '#3f3f46',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  reloadText: {
-    color: '#f4f4f5',
-    fontSize: 13,
-    fontWeight: '600',
   },
   webShell: {
     flex: 1,
@@ -277,23 +182,5 @@ const styles = StyleSheet.create({
     color: '#030712',
     fontSize: 15,
     fontWeight: '700',
-  },
-  scrollTopButton: {
-    position: 'absolute',
-    right: 20,
-    bottom: 28,
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.72)',
-    backgroundColor: 'rgba(9, 9, 11, 0.88)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.26,
-    shadowRadius: 14,
-    elevation: 6,
   },
 });

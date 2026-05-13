@@ -3,9 +3,9 @@ import { StyleSheet, Text, View } from 'react-native'
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>CipherForge</Text>
+      <Text style={styles.title}>CipherBox</Text>
       <Text style={styles.message}>
-        The current CipherForge interface is built for the web. Use the web build for the full toolset.
+        The current CipherBox interface is built for the web. Use the web build for the full toolset.
       </Text>
     </View>
   )

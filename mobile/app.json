@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "CipherForge",
-    "slug": "cipherforge",
+    "name": "CipherBox",
+    "slug": "cipherbox-mobile",
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "scheme": "cipherforge",
+    "scheme": "cipherbox",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
@@ -22,7 +22,7 @@
         "backgroundColor": "#030a0f"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.cipherforge.mobile"
+      "package": "com.cipherbox.app"
     }
   }
 }

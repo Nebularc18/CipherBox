@@ -1,6 +1,6 @@
 {
-  "name": "CipherForge",
-  "short_name": "CipherForge",
+  "name": "CipherBox",
+  "short_name": "CipherBox",
   "description": "A browser toolbox for ciphers, hashes, encodings, and puzzle solving.",
   "start_url": ".",
   "scope": ".",
