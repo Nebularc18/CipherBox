@@ -1,6 +1,6 @@
-# CipherForge
+# CipherBox
 
-CipherForge is a static browser toolbox for cipher experiments, quick encoding work, SHA-256 hashing, and puzzle-text cleanup. It is designed for mystery, ARG, and geocaching-style solving workflows and runs fully in the browser with no backend or database.
+CipherBox is a static browser toolbox for cipher experiments, quick encoding work, SHA-256 hashing, and puzzle-text cleanup. It is designed for mystery, ARG, and geocaching-style solving workflows and runs fully in the browser with no backend or database.
 
 ## Features
 
@@ -32,7 +32,7 @@ npm run dev
 
 ## Android app with Expo
 
-An Expo wrapper lives in [`mobile`](./mobile). It uses `react-native-webview` to package the existing CipherForge web app as an Android app while keeping the web app as the single source of truth.
+An Expo wrapper lives in [`mobile`](./mobile). It uses `react-native-webview` to package the existing CipherBox web app as an Android app while keeping the web app as the single source of truth.
 
 Install the mobile dependencies:
 
@@ -65,10 +65,10 @@ By default the app loads:
 https://nebularc18.github.io/CipherBox/
 ```
 
-To point the Android app at another deployed URL or a local dev server, set `EXPO_PUBLIC_CIPHERFORGE_URL` in `mobile/.env`:
+To point the Android app at another deployed URL or a local dev server, set `EXPO_PUBLIC_CIPHERBOX_URL` in `mobile/.env`:
 
 ```bash
-EXPO_PUBLIC_CIPHERFORGE_URL=http://10.0.2.2:5173/
+EXPO_PUBLIC_CIPHERBOX_URL=http://10.0.2.2:5173/
 ```
 
 `10.0.2.2` reaches your computer's localhost from the Android emulator. For a physical Android device, use your computer's LAN IP instead.

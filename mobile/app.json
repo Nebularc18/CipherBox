@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "CipherForge",
-    "slug": "cipherforge",
+    "name": "CipherBox",
+    "slug": "cipherbox",
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "scheme": "cipherforge",
+    "scheme": "cipherbox",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {

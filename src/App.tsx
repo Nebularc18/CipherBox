@@ -1481,7 +1481,7 @@ function App() {
             <LockKeyhole size={23} strokeWidth={2.1} />
           </span>
           <span>
-            Cipher<span>Forge</span>
+            Cipher<span>Box</span>
           </span>
         </a>
         <p className="brand-subtitle">Puzzle Crypto Workbench</p>
@@ -1522,7 +1522,7 @@ function App() {
           <div className="hero-copy">
             <p className="eyebrow">Puzzle Crypto Workbench</p>
             <h1>
-              Cipher<span>Forge</span>
+              Cipher<span>Box</span>
             </h1>
           <p className="hero-subtitle">
             A browser toolbox for ciphers, hashes, and puzzle solving.

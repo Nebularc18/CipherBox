@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "CipherForge",
-    "slug": "cipherforge",
+    "name": "CipherBox",
+    "slug": "cipherbox",
     "extra": {
       "eas": {
         "projectId": "85884e87-82a8-46fa-ad1b-2dfc779bd375"

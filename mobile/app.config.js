@@ -1,11 +1,14 @@
-const appUrl = process.env.EXPO_PUBLIC_CIPHERFORGE_URL || 'https://nebularc18.github.io/CipherBox/';
+const appUrl =
+  process.env.EXPO_PUBLIC_CIPHERBOX_URL ||
+  process.env.EXPO_PUBLIC_CIPHERFORGE_URL ||
+  'https://nebularc18.github.io/CipherBox/';
 const buildProfile = process.env.EAS_BUILD_PROFILE;
 const allowCleartext = appUrl.startsWith('http://') && buildProfile !== 'production';
 
 export default {
   expo: {
-    name: 'CipherForge',
-    slug: 'cipherforge-mobile',
+    name: 'CipherBox',
+    slug: 'cipherbox-mobile',
     version: '1.0.0',
     orientation: 'portrait',
     icon: './assets/icon.png',
@@ -34,7 +37,7 @@ export default {
     },
     extra: {
       eas: {
-        projectId: '8e77ebf0-79eb-40a3-8699-8003b8e6720b',
+        projectId: 'a1262aa9-470c-459a-b4b6-4ba3f00f3f48',
       },
     },
   },
