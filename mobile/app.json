@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "CipherBox",
-    "slug": "cipherbox",
+    "slug": "cipherbox-mobile",
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
